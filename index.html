@@ -1,285 +1,36 @@
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: transparent;
-            z-index: 5;
-            pointer-events: auto;
-        }
+<link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
 
-        /* Solo permite interactuar con el reproductor cuando se hace clic en la capa */
-        .capa-bloqueo-reproductor.active + .reproductor-estilo {
-            pointer-events: auto;
-        }
+<style>
+    .contenedor-cine {
+        max-width: 1000px;
+        margin: 30px auto;
+        padding: 0 15px;
+    }
+    .reproductor-estilo {
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        background: #000;
+    }
+    /* Personaliza el color de los controles (opcional) */
+    :root {
+        --plyr-color-main: #e50914; /* Rojo tipo Netflix */
+    }
+</style>
 
-        .capa-bloqueo-reproductor:not(.active) + .reproductor-estilo {
-            pointer-events: none;
-        }
-
-        /* Estilo del reproductor */
-        .reproductor-estilo {
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.7);
-            background: #000;
-            position: relative;
-            pointer-events: none;
-            z-index: 2;
-        }
-
-        /* Nombre del contenido en tiempo real (pequeñito) */
-        .nombre-contenido-activo {
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            background-color: rgba(0,0,0,0.8);
-            padding: 8px 12px;
-            border-radius: 4px;
-            font-size: 0.9em;
-            color: #fff;
-            z-index: 10;
-            display: none;
-        }
-
-        /* Mensaje de presentación antes de cada contenido */
-        .mensaje-presentacion {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #000;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 20;
-            font-size: 1.5em;
-            color: #e50914;
-        }
-
-        .mensaje-presentacion p {
-            margin: 10px 0;
-        }
-
-        .mensaje-presentacion span {
-            color: #fff;
-            font-size: 1.2em;
-            font-weight: bold;
-        }
-
-        /* Mensaje si el video no carga */
-        .mensaje-error {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 30;
-            font-size: 1.2em;
-            color: #e50914;
-            text-align: center;
-            padding: 20px;
-            display: none;
-        }
-
-        /* Estilo del botón de compartir */
-        .plyr__control--share {
-            cursor: pointer;
-        }
-
-        .plyr__control--share svg {
-            width: 20px;
-            height: 20px;
-            fill: var(--plyr-color-main);
-        }
-
-        /* Color principal del reproductor (rojo Netflix) */
-        :root {
-            --plyr-color-main: #e50914;
-        }
-
-        /* Ocultar botones de descarga nativos del navegador */
-        video::-internal-media-controls-download-button {
-            display: none !important;
-        }
-        video::-webkit-media-controls-enclosure {
-            overflow: hidden !important;
-        }
-        video::-webkit-media-controls-panel {
-            width: calc(100% + 30px) !important;
-        }
-    </style>
-</head>
-<body>
-    <!-- LOGO DEL CANAL -->
-    <img src="https://i.imgur.com/6BHLJmI.png" alt="Logo Series y Juegos TV" class="logo-canal">
-
-    <!-- ESPACIO DE PUBLICIDAD DE DILGRASAS (SOLO ACEITE USADO DE COCINA) -->
-    <div class="espacio-publicidad" id="espacioPublicidad">
-        <img src="https://i.imgur.com/mYQzG9f.png" alt="Logo Dilgrasas" class="logo-dilgrasas">
-        <h2 class="mensaje-principal">¡COMPRAMOS ACEITE USADO DE COCINA!</h2>
-        <p class="contacto-publicidad">Llámanos: 3153517955</p>
-        <div class="redes-sociales">
-            <a href="#" class="red-social">YouTube</a> <!-- Reemplaza # con la URL real -->
-            <a href="#" class="red-social">Facebook</a> <!-- Reemplaza # con la URL real -->
-            <a href="#" class="red-social">Instagram</a> <!-- Reemplaza # con la URL real -->
-        </div>
+<div class="contenedor-cine">
+    <div class="reproductor-estilo">
+        <video id="player" playsinline controls>
+            <source src="https://ia800900.us.archive.org/28/items/1.-riesgo-de-vuelo-2025-espanol_202506/Capit%C3%A1n%20Am%C3%A9rica%20Un%20nuevo%20mundo.mp4" type="video/mp4" />
+        </video>
     </div>
+</div>
 
-    <!-- Secciones: Series, Juegos, TV -->
-    <div class="secciones-container">
-        <div class="seccion">SERIES</div>
-        <div class="seccion">JUEGOS</div>
-        <div class="seccion">TV</div>
-    </div>
-
-    <!-- Contenedor del reproductor con capa de bloqueo -->
-    <div class="contenedor-cine">
-        <!-- Capa de bloqueo para evitar clic derecho y acceso directo -->
-        <div class="capa-bloqueo-reproductor" id="capaBloqueoReproductor"></div>
-        
-        <div class="reproductor-estilo">
-            <!-- Mensaje de presentación antes de cada contenido -->
-            <div class="mensaje-presentacion" id="mensajePresentacion">
-                <p>Próxima transmisión:</p>
-                <span id="nombrePresentacion"></span>
-                <p>En unos segundos...</p>
-            </div>
-
-            <!-- Nombre del contenido en tiempo real (pequeñito) -->
-            <div class="nombre-contenido-activo" id="nombreContenidoActivo"></div>
-
-            <!-- Mensaje si el video no carga -->
-            <div class="mensaje-error" id="mensajeError">
-                <p>Lo siento, no se pudo cargar la transmisión.</p>
-                <p>Intentando con la siguiente en unos segundos...</p>
-            </div>
-
-            <!-- Reproductor -->
-            <video id="player" playsinline controls>
-                <source src="" type="video/mp4" />
-            </video>
-        </div>
-    </div>
-
-    <!-- Script de Plyr -->
-    <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
-    <script>
-        // BLOQUEO DE CLIC DERECHO EN TODA LA PÁGINA (especialmente en el reproductor)
-        document.addEventListener('contextmenu', (e) => {
-            // Solo permite clic derecho en los enlaces de redes sociales
-            if (!e.target.closest('.red-social')) {
-                e.preventDefault();
-                alert('La descarga de contenido no está permitida.');
-            }
-        });
-
-        // BLOQUEO DE TECLAS DE ATALLO COMUNES PARA DESCARGAR
-        document.addEventListener('keydown', (e) => {
-            // Bloquea Ctrl+S, Ctrl+P, Ctrl+U, F12, Shift+Ctrl+I
-            if (
-                (e.ctrlKey && e.key === 's') ||
-                (e.ctrlKey && e.key === 'p') ||
-                (e.ctrlKey && e.key === 'u') ||
-                (e.key === 'F12') ||
-                (e.ctrlKey && e.shiftKey && e.key === 'i')
-            ) {
-                e.preventDefault();
-                alert('La descarga de contenido no está permitida.');
-            }
-        });
-
-        // BLOQUEO DE ARRASTRE Y SOLTAR DE ELEMENTOS
-        document.addEventListener('dragstart', (e) => {
-            e.preventDefault();
-        });
-
-        // Lista de contenidos para el bucle perpetuo (actualmente 2 videos)
-        const contenidos = [
-            {
-                nombre: "Capitán América: Un Nuevo Mundo",
-                src: "https://ia800900.us.archive.org/28/items/1.-riesgo-de-vuelo-2025-espanol_202506/Capit%C3%A1n%20Am%C3%A9rica%20Un%20nuevo%20mundo.mp4"
-            },
-            {
-                nombre: "Riesgo de Vuelo 2025",
-                src: "https://ia800900.us.archive.org/28/items/1.-riesgo-de-vuelo-2025-espanol_202506/1.Riesgo%20de%20vuelo%202025%F0%9F%87%AE%F0%9F%87%B9%20espa%C3%B1ol.mp4"
-            },
-            // { nombre: "Nombre del contenido", src: "URL del video" },
-        ];
-
-        // Elementos del DOM
-        const playerElement = document.getElementById('player');
-        const nombreContenidoActivo = document.getElementById('nombreContenidoActivo');
-        const mensajePresentacion = document.getElementById('mensajePresentacion');
-        const nombrePresentacion = document.getElementById('nombrePresentacion');
-        const mensajeError = document.getElementById('mensajeError');
-        const espacioPublicidad = document.getElementById('espacioPublicidad');
-        const capaBloqueoReproductor = document.getElementById('capaBloqueoReproductor');
-
-        // Variables de estado
-        let tiempoInicioTransmision;
-        let indiceContenidoActual;
-        let duracionContenidoActual;
-        let esPrimeraCarga = true;
-        let estaPausado = false;
-        let posicionPausada = 0;
-        const enlacePagina = window.location.href;
-
-        // Habilitar reproductor al hacer clic en la capa de bloqueo
-        capaBloqueoReproductor.addEventListener('click', () => {
-            capaBloqueoReproductor.classList.add('active');
-            player.play().catch(err => console.error('Error al reproducir:', err));
-        });
-
-        // Función para guardar el estado
-        function guardarEstado() {
-            const estado = {
-                indice: indiceContenidoActual,
-                tiempoInicio: tiempoInicioTransmision,
-                duracion: duracionContenidoActual,
-                estaPausado: estaPausado,
-                posicionPausada: posicionPausada
-            };
-            localStorage.setItem('estadoCanal', JSON.stringify(estado));
-        }
-
-        // Función para cargar el estado guardado
-        function cargarEstadoGuardado() {
-            const estadoGuardado = localStorage.getItem('estadoCanal');
-            if (estadoGuardado) {
-                const { indice, tiempoInicio, duracion, estaPausado: estadoPausado, posicionPausada: posPausada } = JSON.parse(estadoGuardado);
-                const tiempoTranscurrido = (Date.now() - tiempoInicio) / 1000;
-
-                if (!estadoPausado) {
-                    const posicionActual = tiempoTranscurrido;
-                    if (posicionActual >= duracion) {
-                        esPrimeraCarga = false;
-                        return { indice: (indice + 1) % contenidos.length, pausado: false, posicion: 0 };
-                    } else {
-                        esPrimeraCarga = false;
-                        return { indice: indice, pausado: false, posicion: posicionActual };
-                    }
-                } else {
-                    esPrimeraCarga = false;
-                    return { indice: indice, pausado: true, posicion: posPausada };
-                }
-            }
-            esPrimeraCarga = true;
-            return { indice: 0, pausado: false, posicion: 0 };
-        }
-
-        // Función de compartir
-        function compartirContenido(nombreContenido) {
-            const textoCompartir = `¡Mira "${nombreContenido}" en Series y Juegos TV! 🎥\n${enlacePagina}`;
-
-            if (navigator.share) {
-                navigator.share({
-                    title: `Series y Juegos TV
-
-        
+<script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
+<script>
+    // Inicializar el reproductor
+    const player = new Plyr('#player', {
+        title: 'Capitán América: Un Nuevo Mundo',
+        speed: { selected: 1, options: [0.5, 0.75, 1, 1.25, 1.5, 2] }
+    });
+</script>
