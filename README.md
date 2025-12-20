@@ -1,21 +1,3 @@
-<index.html>
-
-<!DOCTYPE html>
-<html lang="es"> <!-- Definimos el idioma como español -->
-<head>
-    <meta charset="UTF-8"> <!-- Asegura que se muestren acentos y caracteres españoles -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Se ve bien en celulares -->
-    <title>Reproductor Intensa Mente 2</title> <!-- Título que aparece en la pestaña del navegador -->
-    <style>
-        /* Estilo básico para que el reproductor se vea ordenado */
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px; /* Ancho máximo de la página */
-            margin: 20px auto; /* Centra la página en la pantalla */
-            padding: 0 20px;
-        }
-        #player {
-            width: 100%; /* El reproductor ocupa todo el ancho disponible */
             height: 450px; /* Altura ideal para video HD */
             border: 2px solid #333; /* Borde negro para ver el área del reproductor */
             border-radius: 8px; /* Esquinas redondeadas */
