@@ -1,26 +1,3 @@
-            height: 450px; /* Altura ideal para video HD */
-            border: 2px solid #333; /* Borde negro para ver el área del reproductor */
-            border-radius: 8px; /* Esquinas redondeadas */
-        }
-        .mensaje {
-            margin-top: 15px;
-            padding: 10px;
-            border-radius: 4px;
-        }
-        .exito { color: green; background: #d4edda; }
-        .error { color: red; background: #f8d7da; }
-    </style>
-</head>
-<body>
-    <h1>Reproductor de Intensa Mente 2</h1> <!-- Título de la página -->
-    
-    <!-- Área donde se va a mostrar el reproductor -->
-    <div id="player"></div>
-
-    <!-- Mensaje para informar si funciona o no -->
-    <div id="mensaje" class="mensaje"></div>
-
-    <!-- 1. Cargamos la librería PlayerJS (versión estable y confiable) -->
     <script src="https://cdn.jsdelivr.net/npm/playerjs@1.0.28/dist/playerjs.min.js"></script>
 
     <!-- 2. Código para configurar el reproductor -->
