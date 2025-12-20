@@ -1,75 +1,36 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contenido Doble Gelatina</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 20px;
-            background-color: #000;
-            color: #fff;
-            font-family: Arial, sans-serif;
-            text-align: center;
-        }
-        h1 {
-            color: #4CAF50;
-            margin-bottom: 30px;
-        }
-        .section-title {
-            color: #4CAF50;
-            margin: 40px 0 20px;
-            font-size: 1.8em;
-        }
-        .content-item {
-            max-width: 1000px;
-            margin: 0 auto 30px;
-        }
-        video {
-            width: 100%;
-            height: auto;
-            border-radius: 10px;
-            box-shadow: 0 0 20px rgba(255,255,255,0.3);
-        }
-        .item-name {
-            margin: 15px 0 5px;
-            font-size: 1.2em;
-        }
-    </style>
-</head>
-<body>
-    <h1>Contenido Doble Gelatina 🇲🇽</h1>
+<link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
 
-    <!-- Sección Películas -->
-    <h2 class="section-title">Películas</h2>
-    <div class="content-item">
-        <p class="item-name">Riesgo de Vuelo 2025</p>
-        <video controls preload="metadata">
-            <source src="https://ia800900.us.archive.org/28/items/1.-riesgo-de-vuelo-2025-espanol_202506/1.Riesgo%20de%20vuelo%202025%F0%9F%87%AE%F0%9F%87%B9%20espa%C3%B1ol.mp4" type="video/mp4">
-            Lo siento, tu navegador no soporta la reproducción de videos.
+<style>
+    .contenedor-cine {
+        max-width: 1000px;
+        margin: 30px auto;
+        padding: 0 15px;
+    }
+    .reproductor-estilo {
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        background: #000;
+    }
+    /* Personaliza el color de los controles (opcional) */
+    :root {
+        --plyr-color-main: #e50914; /* Rojo tipo Netflix */
+    }
+</style>
+
+<div class="contenedor-cine">
+    <div class="reproductor-estilo">
+        <video id="player" playsinline controls>
+            <source src="https://ia800900.us.archive.org/28/items/1.-riesgo-de-vuelo-2025-espanol_202506/Capit%C3%A1n%20Am%C3%A9rica%20Un%20nuevo%20mundo.mp4" type="video/mp4" />
         </video>
     </div>
+</div>
 
-    <!-- Sección Series -->
-    <h2 class="section-title">Series</h2>
-    <div class="content-item">
-        <p class="item-name">[Nombre de la serie aquí]</p>
-        <p>Agrega el código del video de la serie aquí igual que en la película</p>
-    </div>
-
-    <!-- Sección Juegos -->
-    <h2 class="section-title">Juegos</h2>
-    <div class="content-item">
-        <p class="item-name">[Nombre del juego aquí]</p>
-        <p>Agrega el código del video o contenido del juego aquí</p>
-    </div>
-
-    <!-- Sección TV -->
-    <h2 class="section-title">TV</h2>
-    <div class="content-item">
-        <p class="item-name">[Nombre del programa de TV aquí]</p>
-        <p>Agrega el código del video del programa aquí</p>
-    </div>
-</body>
-</html>
+<script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
+<script>
+    // Inicializar el reproductor
+    const player = new Plyr('#player', {
+        title: 'Capitán América: Un Nuevo Mundo',
+        speed: { selected: 1, options: [0.5, 0.75, 1, 1.25, 1.5, 2] }
+    });
+</script>
