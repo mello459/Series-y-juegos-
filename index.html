@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TV Digital - Canal Sincronizado</title>
+    <title>TV Live - Pestaña Inteligente</title>
     <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
     <style>
         :root {
@@ -12,101 +12,106 @@
         }
 
         body {
-            background-color: #050505;
+            background-color: #000;
             margin: 0;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             font-family: 'Segoe UI', sans-serif;
-            color: white;
+            overflow: hidden;
         }
 
-        /* Contenedor 16:9 exacto */
         .contenedor-tv {
-            width: 95%;
+            width: 100%;
             max-width: 900px;
             aspect-ratio: 16 / 9;
             background: var(--naranja-metal);
-            padding: 6px;
-            border-radius: 12px;
-            box-shadow: 0 0 40px rgba(0,0,0,0.9);
+            padding: 4px;
+            border-radius: 15px;
             position: relative;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
         }
 
         .pantalla {
             width: 100%;
             height: 100%;
             background: #000;
-            border-radius: 8px;
+            border-radius: 12px;
             overflow: hidden;
             position: relative;
         }
 
-        /* Notificación de Reloj Temporal */
-        #notificacion-reloj {
+        /* --- PESTAÑA FLOTANTE INTELIGENTE --- */
+        .panel-lateral {
             position: absolute;
-            top: 20px;
-            right: 20px;
-            z-index: 100;
-            background: rgba(0, 0, 0, 0.85);
-            border-left: 4px solid #ff8c00;
-            padding: 10px 15px;
-            border-radius: 4px;
-            font-size: 12px;
-            transform: translateX(150%);
-            transition: transform 0.5s ease;
-            pointer-events: none;
-        }
-
-        .visible { transform: translateX(0) !important; }
-
-        /* Icono de Sincronizar (Flotante) */
-        .btn-sincro {
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            z-index: 90;
-            background: rgba(255, 140, 0, 0.2);
-            border: 1px solid rgba(255, 140, 0, 0.5);
-            color: #ff8c00;
-            padding: 5px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 10px;
-            font-weight: bold;
-        }
-
-        /* Barra Social Inferior (Fuera del video para no estorbar) */
-        .social-bar {
-            margin-top: 15px;
+            top: 20%;
+            right: 0;
+            z-index: 1000;
             display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            justify-content: center;
+            align-items: center;
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateX(calc(100% - 12px)); /* Solo queda la ceja visible */
         }
 
-        .btn-social {
-            padding: 8px 15px;
-            border-radius: 5px;
-            text-decoration: none;
+        /* Estado cuando está abierta o activa */
+        .panel-lateral.abierto {
+            transform: translateX(0);
+        }
+
+        /* El tirador o pestaña (la ceja) */
+        .tirador {
+            width: 12px;
+            height: 60px;
+            background: var(--naranja-metal);
+            border-radius: 10px 0 0 10px;
+            cursor: pointer;
+            box-shadow: -2px 0 10px rgba(0,0,0,0.5);
+        }
+
+        /* El contenido del panel */
+        .contenido-panel {
+            background: rgba(20, 20, 20, 0.95);
+            border-left: 2px solid #ff8c00;
+            padding: 15px;
+            width: 180px;
+            border-radius: 0 0 0 15px;
+            backdrop-filter: blur(10px);
             color: white;
-            font-size: 12px;
-            font-weight: bold;
-            transition: 0.3s;
+            text-align: center;
         }
 
-        .ws { background: #25d366; }
-        .fb { background: #1877f2; }
-        .tg { background: #0088cc; }
+        .btn-sincro-panel {
+            background: var(--naranja-metal);
+            border: none;
+            color: white;
+            padding: 8px;
+            width: 100%;
+            border-radius: 5px;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
 
-        /* Loader */
+        #timer-text {
+            font-size: 18px;
+            font-weight: bold;
+            color: #ff8c00;
+            display: block;
+            margin: 5px 0;
+        }
+
+        /* Loader de sistema */
         #loader {
             position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: #000; z-index: 200;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            inset: 0;
+            background: #000;
+            z-index: 2000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
         }
     </style>
 </head>
@@ -116,25 +121,21 @@
     <div class="pantalla">
         
         <div id="loader">
-            <div style="width: 40px; height: 40px; border: 4px solid #333; border-top-color: #ff8c00; border-radius: 50%; animation: spin 1s linear infinite;"></div>
-            <p style="font-size: 12px; margin-top: 10px;">CONECTANDO A LA SEÑAL...</p>
+            <div style="width: 30px; height: 30px; border: 3px solid #333; border-top-color: #ff8c00; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+            <p style="color: #ff8c00; font-size: 10px; margin-top: 10px; letter-spacing: 2px;">SINTONIZANDO VIVO...</p>
         </div>
 
-        <div id="notificacion-reloj">
-            <div style="opacity: 0.7; font-size: 10px;">PRÓXIMO PROGRAMA EN:</div>
-            <div id="tiempo-restante" style="font-size: 16px; font-weight: bold; color: #ff8c00;">00:00:00</div>
+        <div id="miPanel" class="panel-lateral">
+            <div class="tirador" onclick="togglePanel()"></div>
+            <div class="contenido-panel">
+                <span style="font-size: 9px; opacity: 0.7;">PRÓXIMO PROGRAMA EN:</span>
+                <span id="timer-text">00:00:00</span>
+                <button class="btn-sincro-panel" onclick="sincronizarConEfecto()">🔄 SINCRONIZAR</button>
+            </div>
         </div>
-
-        <button class="btn-sincro" onclick="mostrarRelojYSincronizar()">🔄 SINCRONIZAR VIVO</button>
 
         <video id="player" playsinline controls></video>
     </div>
-</div>
-
-<div class="social-bar">
-    <a href="#" id="share-ws" class="btn-social ws" target="_blank">WhatsApp</a>
-    <a href="#" id="share-fb" class="btn-social fb" target="_blank">Facebook</a>
-    <a href="#" id="share-tg" class="btn-social tg" target="_blank">Telegram</a>
 </div>
 
 <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
@@ -145,67 +146,67 @@
         { title: "Cómo entrenar a tu dragón", url: "https://ia600900.us.archive.org/28/items/1.-riesgo-de-vuelo-2025-espanol_202506/C%C3%B3mo%20entrenar%20a%20tu%20drag%C3%B3n%202025.mp4", dur: 6000 }
     ];
 
-    const player = new Plyr('#player', { 
-        autoplay: true, 
-        muted: true,
-        ratio: '16:9',
-        quality: { default: 720, options: [720] }
+    const player = new Plyr('#player', { autoplay: true, muted: true });
+    let timerInterval;
+
+    function calcularSincronia() {
+        const total = playlist.reduce((a, b) => a + b.dur, 0);
+        const cycle = Math.floor(Date.now() / 1000) % total;
+        let accum = 0;
+
+        for (let v of playlist) {
+            if (cycle < accum + v.dur) {
+                const diff = (accum + v.dur) - cycle;
+                return { video: v, seek: cycle - accum, restante: diff };
+            }
+            accum += v.dur;
+        }
+    }
+
+    function actualizarReloj() {
+        const datos = calcularSincronia();
+        const h = Math.floor(datos.restante / 3600);
+        const m = Math.floor((datos.restante % 3600) / 60);
+        const s = datos.restante % 60;
+        document.getElementById('timer-text').innerText = `${h}:${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
+    }
+
+    function sincronizarConEfecto() {
+        const loader = document.getElementById('loader');
+        loader.style.display = 'flex';
+        
+        const info = calcularSincronia();
+        player.source = { type: 'video', sources: [{ src: info.video.url, type: 'video/mp4' }] };
+        
+        player.once('ready', () => {
+            player.currentTime = info.seek;
+            player.play();
+            setTimeout(() => { loader.style.display = 'none'; }, 500);
+        });
+
+        // Abrir pestaña al sincronizar y cerrarla tras 5 segundos
+        const panel = document.getElementById('miPanel');
+        panel.classList.add('abierto');
+        setTimeout(() => { panel.classList.remove('abierto'); }, 5000);
+    }
+
+    function togglePanel() {
+        document.getElementById('miPanel').classList.toggle('abierto');
+    }
+
+    // Al volver a la pestaña, sincronizar
+    document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "visible") sincronizarConEfecto();
     });
 
-    function sincronizar() {
-        const total = playlist.reduce((a, b) => a + b.dur, 0);
-        const cycleTime = Math.floor(Date.now() / 1000) % total;
-        let accum = 0;
+    window.addEventListener('load', () => {
+        sincronizarConEfecto();
+        setInterval(actualizarReloj, 1000);
+    });
 
-        for (let video of playlist) {
-            if (cycleTime < accum + video.dur) {
-                const seek = cycleTime - accum;
-                player.source = { type: 'video', sources: [{ src: video.url, type: 'video/mp4' }] };
-                player.once('ready', () => { 
-                    player.currentTime = seek; 
-                    player.play();
-                    document.getElementById('loader').style.display = 'none';
-                });
-                break;
-            }
-            accum += video.dur;
-        }
-    }
+    player.on('ended', sincronizarConEfecto);
 
-    function mostrarRelojYSincronizar() {
-        const total = playlist.reduce((a, b) => a + b.dur, 0);
-        const cycleTime = Math.floor(Date.now() / 1000) % total;
-        let accum = 0;
-
-        for (let video of playlist) {
-            if (cycleTime < accum + video.dur) {
-                const diff = (accum + video.dur) - cycleTime;
-                const h = Math.floor(diff / 3600);
-                const m = Math.floor((diff % 3600) / 60);
-                const s = diff % 60;
-                document.getElementById('tiempo-restante').innerText = `${h}:${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
-                break;
-            }
-            accum += video.dur;
-        }
-
-        const notif = document.getElementById('notificacion-reloj');
-        notif.classList.add('visible');
-        setTimeout(() => notif.classList.remove('visible'), 5000); // Se va a los 5 segundos
-        sincronizar();
-    }
-
-    // Configuración de botones sociales
-    const pageUrl = encodeURIComponent(window.location.href);
-    const text = encodeURIComponent("¡Mira este canal de TV en vivo!");
-    document.getElementById('share-ws').href = `https://api.whatsapp.com/send?text=${text}%20${pageUrl}`;
-    document.getElementById('share-fb').href = `https://www.facebook.com/sharer/sharer.php?u=${pageUrl}`;
-    document.getElementById('share-tg').href = `https://t.me/share/url?url=${pageUrl}&text=${text}`;
-
-    document.addEventListener('DOMContentLoaded', sincronizar);
-    player.on('ended', sincronizar);
-
-    // Animación de spin
+    // Animación de rotación
     const style = document.createElement('style');
     style.innerHTML = `@keyframes spin { 100% { transform: rotate(360deg); } }`;
     document.head.appendChild(style);
