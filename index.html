@@ -1,36 +1,152 @@
-<link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Canal de TV Pro</title>
+    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
+    <style>
+        body { background-color: #0b0e14; color: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 10px; }
+        
+        .tv-wrapper { 
+            max-width: 1000px; 
+            margin: 20px auto; 
+            border-radius: 12px; 
+            overflow: hidden; 
+            background: #000; 
+            box-shadow: 0 10px 40px rgba(0,0,0,0.7);
+            border: 1px solid #333;
+        }
 
-<style>
-    .contenedor-cine {
-        max-width: 1000px;
-        margin: 30px auto;
-        padding: 0 15px;
-    }
-    .reproductor-estilo {
-        border-radius: 12px;
-        overflow: hidden;
-        box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-        background: #000;
-    }
-    /* Personaliza el color de los controles (opcional) */
-    :root {
-        --plyr-color-main: #e50914; /* Rojo tipo Netflix */
-    }
-</style>
+        .tv-header { 
+            background: #1a1a1a; 
+            padding: 12px 20px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+        }
 
-<div class="contenedor-cine">
-    <div class="reproductor-estilo">
-        <video id="player" playsinline controls>
-            <source src="https://ia800900.us.archive.org/28/items/1.-riesgo-de-vuelo-2025-espanol_202506/Capit%C3%A1n%20Am%C3%A9rica%20Un%20nuevo%20mundo.mp4" type="video/mp4" />
-        </video>
+        .live-tag { 
+            background: #ff0000; 
+            color: white; 
+            padding: 2px 8px; 
+            border-radius: 4px; 
+            font-size: 11px; 
+            font-weight: bold; 
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+
+        .video-title { font-size: 15px; color: #eee; font-weight: 500; }
+
+        .extra-controls { 
+            padding: 15px; 
+            background: #161b22; 
+            display: flex; 
+            gap: 10px; 
+            justify-content: center;
+            border-top: 1px solid #333;
+        }
+
+        .btn {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+            font-size: 13px;
+        }
+
+        .btn-stop { background: #d73a49; color: white; }
+        .btn-share { background: #21262d; color: #c9d1d9; border: 1px solid #30363d; }
+        .btn-next { background: #238636; color: white; }
+
+        :root { --plyr-color-main: #ff0000; } /* Color rojo para los controles */
+    </style>
+</head>
+<body>
+
+<div class="tv-wrapper">
+    <div class="tv-header">
+        <span class="live-tag">EN VIVO</span>
+        <span id="current-title" class="video-title">Cargando programación...</span>
+    </div>
+
+    <video id="player" playsinline controls></video>
+
+    <div class="extra-controls">
+        <button class="btn btn-share" onclick="copyLink()">🔗 Compartir</button>
+        <button class="btn btn-stop" onclick="stopAndSave()">⏹️ Detener</button>
+        <button class="btn btn-next" onclick="nextVideo()">Siguiente ⏭️</button>
     </div>
 </div>
 
 <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
 <script>
-    // Inicializar el reproductor
+    // LISTA DE VIDEOS
+    const playlist = [
+        {
+            title: "Riesgo de Vuelo (2025)",
+            url: "https://ia800900.us.archive.org/28/items/1.-riesgo-de-vuelo-2025-espanol_202506/1.Riesgo%20de%20vuelo%202025%F0%9F%87%AE%F0%9F%87%B9%20espa%C3%B1ol.mp4"
+        },
+        {
+            title: "Intensa Mente 2",
+            url: "https://ia600900.us.archive.org/28/items/1.-riesgo-de-vuelo-2025-espanol_202506/Intensa%20Mente%202.mp4"
+        },
+        {
+            title: "Cómo entrenar a tu dragón (2025)",
+            url: "https://ia600900.us.archive.org/28/items/1.-riesgo-de-vuelo-2025-espanol_202506/C%C3%B3mo%20entrenar%20a%20tu%20drag%C3%B3n%202025.mp4"
+        }
+    ];
+
+    let currentIndex = 0;
     const player = new Plyr('#player', {
-        title: 'Capitán América: Un Nuevo Mundo',
-        speed: { selected: 1, options: [0.5, 0.75, 1, 1.25, 1.5, 2] }
+        autoplay: true,
+        muted: true, // Requerido para Autoplay
+        storage: { enabled: true, key: 'tv_memoria_minutos' }
     });
+
+    function loadVideo(index) {
+        currentIndex = index;
+        const video = playlist[index];
+        document.getElementById('current-title').innerText = video.title;
+        
+        player.source = {
+            type: 'video',
+            sources: [{ src: video.url, type: 'video/mp4' }]
+        };
+        player.play();
+    }
+
+    // Al cargar la página
+    document.addEventListener('DOMContentLoaded', () => {
+        loadVideo(0);
+    });
+
+    // Evento: Al terminar el video pasa al siguiente
+    player.on('ended', () => {
+        nextVideo();
+    });
+
+    function nextVideo() {
+        currentIndex = (currentIndex + 1) % playlist.length;
+        loadVideo(currentIndex);
+    }
+
+    function stopAndSave() {
+        player.pause();
+        const currentTime = player.currentTime;
+        localStorage.setItem('tv_memoria_minutos', currentTime);
+        alert("Video detenido en el segundo: " + Math.round(currentTime) + ". Se guardó tu progreso.");
+    }
+
+    function copyLink() {
+        navigator.clipboard.writeText(window.location.href);
+        alert("Enlace del canal copiado.");
+    }
 </script>
+
+</body>
+</html>
