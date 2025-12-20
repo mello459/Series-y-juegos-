@@ -3,114 +3,113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Canal TV Metálico Profesional</title>
+    <title>Canal TV Metálico - Sincronía Total</title>
     <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
     <style>
-        /* Estilos de la Capa Metálica y Presentación */
         :root {
-            --naranja-metal: linear-gradient(180deg, #ffb347 0%, #ff8c00 50%, #e65100 100%);
-            --brillo-metal: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            --naranja-metal: linear-gradient(180deg, #ff8c00 0%, #e65100 100%);
             --plyr-color-main: #ff6600;
         }
 
         body {
-            background-color: #0a0a0a;
+            background-color: #050505;
             margin: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             font-family: 'Segoe UI', sans-serif;
-        }
-
-        /* El Reproductor como una sola pieza integrada */
-        .contenedor-tv {
-            width: 95%;
-            max-width: 850px;
-            background: var(--naranja-metal);
-            padding: 10px;
-            border-radius: 30px;
-            box-shadow: 0 0 50px rgba(255, 85, 0, 0.3), inset 0 0 15px rgba(255,255,255,0.4);
-            position: relative;
+            color: white;
             overflow: hidden;
         }
 
-        /* Reflejo metálico sobre el marco */
-        .contenedor-tv::after {
-            content: "";
-            position: absolute;
-            top: 0; left: -100%;
-            width: 50%; height: 100%;
-            background: var(--brillo-metal);
-            transform: skewX(-25deg);
-            pointer-events: none;
-            animation: reflejo 6s infinite;
-        }
-
-        @keyframes reflejo {
-            0% { left: -100%; }
-            20% { left: 150%; }
-            100% { left: 150%; }
+        .contenedor-tv {
+            width: 98%;
+            max-width: 900px;
+            background: var(--naranja-metal);
+            padding: 5px;
+            border-radius: 20px;
+            box-shadow: 0 0 50px rgba(255, 85, 0, 0.3);
+            position: relative;
         }
 
         .pantalla {
             background: #000;
-            border-radius: 20px;
+            border-radius: 15px;
             overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            border: 4px solid #1a1a1a;
+            position: relative;
         }
 
-        /* Cabecera integrada */
-        .info-bar {
-            background: #1a1a1a;
-            padding: 12px 20px;
+        /* Título y Próximo Programa */
+        .header-tv {
+            position: absolute;
+            top: 0; left: 0; width: 100%;
+            z-index: 10;
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid #333;
-        }
-
-        .status {
-            color: #ff4500;
-            font-weight: bold;
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        /* Botonera integrada al diseño inferior */
-        .controles-integrados {
-            background: #1a1a1a;
+            align-items: flex-start;
             padding: 15px;
-            display: flex;
-            justify-content: space-around;
-            border-top: 2px solid #333;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+            pointer-events: none;
         }
 
-        .btn-tv {
-            background: var(--naranja-metal);
-            border: none;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 12px;
+        .info-vivo {
+            background: rgba(0,0,0,0.6);
+            padding: 5px 12px;
+            border-radius: 5px;
+            border-left: 3px solid #ff8c00;
+        }
+
+        .proximo-reloj {
+            background: #ff8c00;
+            color: black;
+            padding: 5px 12px;
+            border-radius: 5px;
+            font-size: 11px;
             font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            pointer-events: auto;
             cursor: pointer;
             text-transform: uppercase;
-            font-size: 11px;
-            box-shadow: 0 4px 0 #9e3a00;
-            transition: 0.1s;
         }
 
-        .btn-tv:active {
-            transform: translateY(3px);
-            box-shadow: 0 1px 0 #9e3a00;
+        /* Capa de Sincronización */
+        #loader-sincro {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 100;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
         }
 
-        .btn-tv.secundario {
-            background: #333;
-            box-shadow: 0 4px 0 #111;
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 140, 0, 0.2);
+            border-top: 5px solid #ff8c00;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Botón Compartir Discreto */
+        .btn-compartir {
+            position: absolute;
+            bottom: 60px;
+            right: 20px;
+            z-index: 10;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid #ff8c00;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -118,79 +117,111 @@
 
 <div class="contenedor-tv">
     <div class="pantalla">
-        <div class="info-bar">
-            <span class="status">● TRANSMISIÓN CONSTANTE</span>
-            <span id="titulo-video" style="color: #ffca28; font-size: 13px;">Sintonizando...</span>
+        
+        <div id="loader-sincro">
+            <div class="spinner"></div>
+            <p id="txt-sincro" style="margin-top:20px; font-weight: bold;">AJUSTANDO SEÑAL 720p...</p>
+            <div id="cuenta" style="font-size: 30px; color: #ff8c00;">3</div>
         </div>
+
+        <div class="header-tv">
+            <div class="info-vivo">
+                <div style="font-size: 10px; opacity: 0.8;">EN EMISIÓN:</div>
+                <div id="titulo-video" style="font-size: 14px; font-weight: bold; color: #ffca28;">...</div>
+            </div>
+            <div class="proximo-reloj" onclick="iniciarSincronizacion()">
+                Sincronizar Vivo<br>
+                <span id="reloj-countdown">Calculando...</span>
+            </div>
+        </div>
+
+        <button class="btn-compartir" onclick="compartir()">🔗</button>
 
         <video id="player" playsinline controls></video>
-
-        <div class="controles-integrados">
-            <button class="btn-tv" onclick="compartir()">📤 Compartir</button>
-            <button class="btn-tv secundario" onclick="pausarGuardar()">⏸️ Pausa / Vivo</button>
-            <button class="btn-tv" onclick="siguiente()">Siguiente ⏭️</button>
-        </div>
     </div>
 </div>
 
 <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
 <script>
     const playlist = [
-        { title: "Riesgo de Vuelo (2025)", url: "https://ia800900.us.archive.org/28/items/1.-riesgo-de-vuelo-2025-espanol_202506/1.Riesgo%20de%20vuelo%202025%F0%9F%87%AE%F0%9F%87%B9%20espa%C3%B1ol.mp4", dur: 7200 },
-        { title: "Intensa Mente 2", url: "https://ia600900.us.archive.org/28/items/1.-riesgo-de-vuelo-2025-espanol_202506/Intensa%20Mente%202.mp4", dur: 5760 },
-        { title: "Cómo entrenar a tu dragón (2025)", url: "https://ia600900.us.archive.org/28/items/1.-riesgo-de-vuelo-2025-espanol_202506/C%C3%B3mo%20entrenar%20a%20tu%20drag%C3%B3n%202025.mp4", dur: 6000 }
+        { title: "Riesgo de Vuelo (2025)", url: "https://ia800900.us.archive.org/28/items/1.-riesgo-de-vuelo-2025-espanol_202506/1.Riesgo%20de%20vuelo%202025%F0%9F%87%AE%F0%9F%87%B9%20espa%C3%B1ol.mp4", dur: 7920 }, // 2h 12m
+        { title: "Intensa Mente 2", url: "https://ia600900.us.archive.org/28/items/1.-riesgo-de-vuelo-2025-espanol_202506/Intensa%20Mente%202.mp4", dur: 5760 }, // 1h 36m
+        { title: "Cómo entrenar a tu dragón (2025)", url: "https://ia600900.us.archive.org/28/items/1.-riesgo-de-vuelo-2025-espanol_202506/C%C3%B3mo%20entrenar%20a%20tu%20drag%C3%B3n%202025.mp4", dur: 6000 } // 1h 40m
     ];
 
-    const player = new Plyr('#player', { autoplay: true, muted: true });
+    const player = new Plyr('#player', { 
+        autoplay: true, 
+        muted: true,
+        quality: { default: 720, options: [720] }, // Forzamos resolución 720p internamente
+        controls: ['play', 'progress', 'current-time', 'mute', 'volume', 'fullscreen'] 
+    });
 
-    // Función para que la transmisión sea CONSTANTE (TV Real)
-    function sincronizarCanal() {
-        const duracionTotal = playlist.reduce((a, b) => a + b.dur, 0);
-        const tiempoUnix = Math.floor(Date.now() / 1000);
-        const tiempoEnCiclo = tiempoUnix % duracionTotal;
-
-        let acumulado = 0;
-        for (let i = 0; i < playlist.length; i++) {
-            if (tiempoEnCiclo < acumulado + playlist[i].dur) {
-                const video = playlist[i];
-                const puntoExacto = tiempoEnCiclo - acumulado;
+    function actualizarReloj() {
+        const durTotal = playlist.reduce((a, b) => a + b.dur, 0);
+        const tiempoCiclo = Math.floor(Date.now() / 1000) % durTotal;
+        
+        let acum = 0;
+        for (let video of playlist) {
+            if (tiempoCiclo < acum + video.dur) {
+                const restante = (acum + video.dur) - tiempoCiclo;
+                const h = Math.floor(restante / 3600);
+                const m = Math.floor((restante % 3600) / 60);
+                const s = restante % 60;
                 
+                document.getElementById('reloj-countdown').innerText = `FALTAN: ${h > 0 ? h + ':' : ''}${m < 10 ? '0' + m : m}:${s < 10 ? '0' + s : s}`;
                 document.getElementById('titulo-video').innerText = video.title;
-                player.source = { type: 'video', sources: [{ src: video.url, type: 'video/mp4' }] };
-                
-                player.on('ready', () => {
-                    player.currentTime = puntoExacto;
-                    player.play();
+                break;
+            }
+            acum += video.dur;
+        }
+    }
+
+    setInterval(actualizarReloj, 1000);
+
+    function sincronizar() {
+        const durTotal = playlist.reduce((a, b) => a + b.dur, 0);
+        const tiempoCiclo = Math.floor(Date.now() / 1000) % durTotal;
+        let acum = 0;
+
+        for (let video of playlist) {
+            if (tiempoCiclo < acum + video.dur) {
+                const punto = tiempoCiclo - acum;
+                player.source = { type: 'video', sources: [{ src: video.url, type: 'video/mp4', size: 720 }] };
+                player.once('ready', () => { 
+                    player.currentTime = punto; 
+                    player.play(); 
                 });
                 break;
             }
-            acumulado += playlist[i].dur;
+            acum += video.dur;
         }
     }
 
-    document.addEventListener('DOMContentLoaded', sincronizarCanal);
-    player.on('ended', sincronizarCanal);
+    function iniciarSincronizacion() {
+        const loader = document.getElementById('loader-sincro');
+        const cuenta = document.getElementById('cuenta');
+        let seg = 3;
+        loader.style.display = 'flex';
+        cuenta.innerText = seg;
 
-    function pausarGuardar() {
-        if (player.playing) {
-            player.pause();
-            localStorage.setItem('tv_pos', player.currentTime);
-        } else {
-            sincronizarCanal(); // Al darle play de nuevo, vuelve al vivo constante
-        }
-    }
-
-    function siguiente() {
-        // En una TV real el botón siguiente te lleva al próximo programa del horario
-        alert("Sincronizando con el siguiente bloque horario...");
-        sincronizarCanal(); 
+        const interval = setInterval(() => {
+            seg--;
+            cuenta.innerText = seg;
+            if (seg <= 0) {
+                clearInterval(interval);
+                sincronizar();
+                setTimeout(() => loader.style.display = 'none', 1000);
+            }
+        }, 1000);
     }
 
     function compartir() {
-        const url = window.location.href;
-        navigator.clipboard.writeText(url);
-        alert("Enlace del canal copiado.");
+        navigator.clipboard.writeText(window.location.href);
+        alert("Enlace copiado.");
     }
+
+    document.addEventListener('DOMContentLoaded', sincronizar);
+    player.on('ended', sincronizar);
 </script>
 </body>
 </html>
