@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Canal TV Metálico - Sincronía Total</title>
+    <title>TV Digital - Canal Sincronizado</title>
     <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
     <style>
         :root {
@@ -15,101 +15,98 @@
             background-color: #050505;
             margin: 0;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             font-family: 'Segoe UI', sans-serif;
             color: white;
-            overflow: hidden;
         }
 
+        /* Contenedor 16:9 exacto */
         .contenedor-tv {
-            width: 98%;
+            width: 95%;
             max-width: 900px;
+            aspect-ratio: 16 / 9;
             background: var(--naranja-metal);
-            padding: 5px;
-            border-radius: 20px;
-            box-shadow: 0 0 50px rgba(255, 85, 0, 0.3);
+            padding: 6px;
+            border-radius: 12px;
+            box-shadow: 0 0 40px rgba(0,0,0,0.9);
             position: relative;
         }
 
         .pantalla {
+            width: 100%;
+            height: 100%;
             background: #000;
-            border-radius: 15px;
+            border-radius: 8px;
             overflow: hidden;
             position: relative;
         }
 
-        /* Título y Próximo Programa */
-        .header-tv {
+        /* Notificación de Reloj Temporal */
+        #notificacion-reloj {
             position: absolute;
-            top: 0; left: 0; width: 100%;
-            z-index: 10;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            padding: 15px;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.85);
+            border-left: 4px solid #ff8c00;
+            padding: 10px 15px;
+            border-radius: 4px;
+            font-size: 12px;
+            transform: translateX(150%);
+            transition: transform 0.5s ease;
             pointer-events: none;
         }
 
-        .info-vivo {
-            background: rgba(0,0,0,0.6);
-            padding: 5px 12px;
-            border-radius: 5px;
-            border-left: 3px solid #ff8c00;
-        }
+        .visible { transform: translateX(0) !important; }
 
-        .proximo-reloj {
-            background: #ff8c00;
-            color: black;
-            padding: 5px 12px;
-            border-radius: 5px;
-            font-size: 11px;
-            font-weight: bold;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-            pointer-events: auto;
+        /* Icono de Sincronizar (Flotante) */
+        .btn-sincro {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            z-index: 90;
+            background: rgba(255, 140, 0, 0.2);
+            border: 1px solid rgba(255, 140, 0, 0.5);
+            color: #ff8c00;
+            padding: 5px 10px;
+            border-radius: 4px;
             cursor: pointer;
-            text-transform: uppercase;
+            font-size: 10px;
+            font-weight: bold;
         }
 
-        /* Capa de Sincronización */
-        #loader-sincro {
+        /* Barra Social Inferior (Fuera del video para no estorbar) */
+        .social-bar {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn-social {
+            padding: 8px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .ws { background: #25d366; }
+        .fb { background: #1877f2; }
+        .tg { background: #0088cc; }
+
+        /* Loader */
+        #loader {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9);
-            z-index: 100;
-            display: none;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-        }
-
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid rgba(255, 140, 0, 0.2);
-            border-top: 5px solid #ff8c00;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        /* Botón Compartir Discreto */
-        .btn-compartir {
-            position: absolute;
-            bottom: 60px;
-            right: 20px;
-            z-index: 10;
-            background: rgba(0,0,0,0.5);
-            border: 1px solid #ff8c00;
-            color: white;
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            cursor: pointer;
+            background: #000; z-index: 200;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
         }
     </style>
 </head>
@@ -118,110 +115,101 @@
 <div class="contenedor-tv">
     <div class="pantalla">
         
-        <div id="loader-sincro">
-            <div class="spinner"></div>
-            <p id="txt-sincro" style="margin-top:20px; font-weight: bold;">AJUSTANDO SEÑAL 720p...</p>
-            <div id="cuenta" style="font-size: 30px; color: #ff8c00;">3</div>
+        <div id="loader">
+            <div style="width: 40px; height: 40px; border: 4px solid #333; border-top-color: #ff8c00; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+            <p style="font-size: 12px; margin-top: 10px;">CONECTANDO A LA SEÑAL...</p>
         </div>
 
-        <div class="header-tv">
-            <div class="info-vivo">
-                <div style="font-size: 10px; opacity: 0.8;">EN EMISIÓN:</div>
-                <div id="titulo-video" style="font-size: 14px; font-weight: bold; color: #ffca28;">...</div>
-            </div>
-            <div class="proximo-reloj" onclick="iniciarSincronizacion()">
-                Sincronizar Vivo<br>
-                <span id="reloj-countdown">Calculando...</span>
-            </div>
+        <div id="notificacion-reloj">
+            <div style="opacity: 0.7; font-size: 10px;">PRÓXIMO PROGRAMA EN:</div>
+            <div id="tiempo-restante" style="font-size: 16px; font-weight: bold; color: #ff8c00;">00:00:00</div>
         </div>
 
-        <button class="btn-compartir" onclick="compartir()">🔗</button>
+        <button class="btn-sincro" onclick="mostrarRelojYSincronizar()">🔄 SINCRONIZAR VIVO</button>
 
         <video id="player" playsinline controls></video>
     </div>
 </div>
 
+<div class="social-bar">
+    <a href="#" id="share-ws" class="btn-social ws" target="_blank">WhatsApp</a>
+    <a href="#" id="share-fb" class="btn-social fb" target="_blank">Facebook</a>
+    <a href="#" id="share-tg" class="btn-social tg" target="_blank">Telegram</a>
+</div>
+
 <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
 <script>
     const playlist = [
-        { title: "Riesgo de Vuelo (2025)", url: "https://ia800900.us.archive.org/28/items/1.-riesgo-de-vuelo-2025-espanol_202506/1.Riesgo%20de%20vuelo%202025%F0%9F%87%AE%F0%9F%87%B9%20espa%C3%B1ol.mp4", dur: 7920 }, // 2h 12m
-        { title: "Intensa Mente 2", url: "https://ia600900.us.archive.org/28/items/1.-riesgo-de-vuelo-2025-espanol_202506/Intensa%20Mente%202.mp4", dur: 5760 }, // 1h 36m
-        { title: "Cómo entrenar a tu dragón (2025)", url: "https://ia600900.us.archive.org/28/items/1.-riesgo-de-vuelo-2025-espanol_202506/C%C3%B3mo%20entrenar%20a%20tu%20drag%C3%B3n%202025.mp4", dur: 6000 } // 1h 40m
+        { title: "Riesgo de Vuelo", url: "https://ia800900.us.archive.org/28/items/1.-riesgo-de-vuelo-2025-espanol_202506/1.Riesgo%20de%20vuelo%202025%F0%9F%87%AE%F0%9F%87%B9%20espa%C3%B1ol.mp4", dur: 7920 },
+        { title: "Intensa Mente 2", url: "https://ia600900.us.archive.org/28/items/1.-riesgo-de-vuelo-2025-espanol_202506/Intensa%20Mente%202.mp4", dur: 5760 },
+        { title: "Cómo entrenar a tu dragón", url: "https://ia600900.us.archive.org/28/items/1.-riesgo-de-vuelo-2025-espanol_202506/C%C3%B3mo%20entrenar%20a%20tu%20drag%C3%B3n%202025.mp4", dur: 6000 }
     ];
 
     const player = new Plyr('#player', { 
         autoplay: true, 
         muted: true,
-        quality: { default: 720, options: [720] }, // Forzamos resolución 720p internamente
-        controls: ['play', 'progress', 'current-time', 'mute', 'volume', 'fullscreen'] 
+        ratio: '16:9',
+        quality: { default: 720, options: [720] }
     });
 
-    function actualizarReloj() {
-        const durTotal = playlist.reduce((a, b) => a + b.dur, 0);
-        const tiempoCiclo = Math.floor(Date.now() / 1000) % durTotal;
-        
-        let acum = 0;
-        for (let video of playlist) {
-            if (tiempoCiclo < acum + video.dur) {
-                const restante = (acum + video.dur) - tiempoCiclo;
-                const h = Math.floor(restante / 3600);
-                const m = Math.floor((restante % 3600) / 60);
-                const s = restante % 60;
-                
-                document.getElementById('reloj-countdown').innerText = `FALTAN: ${h > 0 ? h + ':' : ''}${m < 10 ? '0' + m : m}:${s < 10 ? '0' + s : s}`;
-                document.getElementById('titulo-video').innerText = video.title;
-                break;
-            }
-            acum += video.dur;
-        }
-    }
-
-    setInterval(actualizarReloj, 1000);
-
     function sincronizar() {
-        const durTotal = playlist.reduce((a, b) => a + b.dur, 0);
-        const tiempoCiclo = Math.floor(Date.now() / 1000) % durTotal;
-        let acum = 0;
+        const total = playlist.reduce((a, b) => a + b.dur, 0);
+        const cycleTime = Math.floor(Date.now() / 1000) % total;
+        let accum = 0;
 
         for (let video of playlist) {
-            if (tiempoCiclo < acum + video.dur) {
-                const punto = tiempoCiclo - acum;
-                player.source = { type: 'video', sources: [{ src: video.url, type: 'video/mp4', size: 720 }] };
+            if (cycleTime < accum + video.dur) {
+                const seek = cycleTime - accum;
+                player.source = { type: 'video', sources: [{ src: video.url, type: 'video/mp4' }] };
                 player.once('ready', () => { 
-                    player.currentTime = punto; 
-                    player.play(); 
+                    player.currentTime = seek; 
+                    player.play();
+                    document.getElementById('loader').style.display = 'none';
                 });
                 break;
             }
-            acum += video.dur;
+            accum += video.dur;
         }
     }
 
-    function iniciarSincronizacion() {
-        const loader = document.getElementById('loader-sincro');
-        const cuenta = document.getElementById('cuenta');
-        let seg = 3;
-        loader.style.display = 'flex';
-        cuenta.innerText = seg;
+    function mostrarRelojYSincronizar() {
+        const total = playlist.reduce((a, b) => a + b.dur, 0);
+        const cycleTime = Math.floor(Date.now() / 1000) % total;
+        let accum = 0;
 
-        const interval = setInterval(() => {
-            seg--;
-            cuenta.innerText = seg;
-            if (seg <= 0) {
-                clearInterval(interval);
-                sincronizar();
-                setTimeout(() => loader.style.display = 'none', 1000);
+        for (let video of playlist) {
+            if (cycleTime < accum + video.dur) {
+                const diff = (accum + video.dur) - cycleTime;
+                const h = Math.floor(diff / 3600);
+                const m = Math.floor((diff % 3600) / 60);
+                const s = diff % 60;
+                document.getElementById('tiempo-restante').innerText = `${h}:${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
+                break;
             }
-        }, 1000);
+            accum += video.dur;
+        }
+
+        const notif = document.getElementById('notificacion-reloj');
+        notif.classList.add('visible');
+        setTimeout(() => notif.classList.remove('visible'), 5000); // Se va a los 5 segundos
+        sincronizar();
     }
 
-    function compartir() {
-        navigator.clipboard.writeText(window.location.href);
-        alert("Enlace copiado.");
-    }
+    // Configuración de botones sociales
+    const pageUrl = encodeURIComponent(window.location.href);
+    const text = encodeURIComponent("¡Mira este canal de TV en vivo!");
+    document.getElementById('share-ws').href = `https://api.whatsapp.com/send?text=${text}%20${pageUrl}`;
+    document.getElementById('share-fb').href = `https://www.facebook.com/sharer/sharer.php?u=${pageUrl}`;
+    document.getElementById('share-tg').href = `https://t.me/share/url?url=${pageUrl}&text=${text}`;
 
     document.addEventListener('DOMContentLoaded', sincronizar);
     player.on('ended', sincronizar);
+
+    // Animación de spin
+    const style = document.createElement('style');
+    style.innerHTML = `@keyframes spin { 100% { transform: rotate(360deg); } }`;
+    document.head.appendChild(style);
 </script>
+
 </body>
 </html>
