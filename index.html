@@ -3,137 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TV Live - Pestaña Inteligente</title>
+    <title>Sincronización Total - Canal TV</title>
     <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
     <style>
-        :root {
-            --naranja-metal: linear-gradient(180deg, #ff8c00 0%, #e65100 100%);
-            --plyr-color-main: #ff6600;
+        :root { --naranja-metal: linear-gradient(180deg, #ff8c00 0%, #e65100 100%); }
+        body { background: #000; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: sans-serif; }
+        .contenedor-tv { width: 100%; max-width: 900px; aspect-ratio: 16/9; background: var(--naranja-metal); padding: 5px; border-radius: 12px; position: relative; }
+        .pantalla { width: 100%; height: 100%; background: #000; border-radius: 10px; overflow: hidden; position: relative; }
+        
+        /* Pestaña inteligente */
+        .pestana-smart {
+            position: absolute; top: 20%; right: 0; z-index: 100;
+            display: flex; align-items: center; transition: 0.5s ease;
+            transform: translateX(calc(100% - 15px));
         }
-
-        body {
-            background-color: #000;
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            font-family: 'Segoe UI', sans-serif;
-            overflow: hidden;
-        }
-
-        .contenedor-tv {
-            width: 100%;
-            max-width: 900px;
-            aspect-ratio: 16 / 9;
-            background: var(--naranja-metal);
-            padding: 4px;
-            border-radius: 15px;
-            position: relative;
-            box-shadow: 0 0 30px rgba(0,0,0,0.5);
-        }
-
-        .pantalla {
-            width: 100%;
-            height: 100%;
-            background: #000;
-            border-radius: 12px;
-            overflow: hidden;
-            position: relative;
-        }
-
-        /* --- PESTAÑA FLOTANTE INTELIGENTE --- */
-        .panel-lateral {
-            position: absolute;
-            top: 20%;
-            right: 0;
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            transform: translateX(calc(100% - 12px)); /* Solo queda la ceja visible */
-        }
-
-        /* Estado cuando está abierta o activa */
-        .panel-lateral.abierto {
-            transform: translateX(0);
-        }
-
-        /* El tirador o pestaña (la ceja) */
-        .tirador {
-            width: 12px;
-            height: 60px;
-            background: var(--naranja-metal);
-            border-radius: 10px 0 0 10px;
-            cursor: pointer;
-            box-shadow: -2px 0 10px rgba(0,0,0,0.5);
-        }
-
-        /* El contenido del panel */
-        .contenido-panel {
-            background: rgba(20, 20, 20, 0.95);
-            border-left: 2px solid #ff8c00;
-            padding: 15px;
-            width: 180px;
-            border-radius: 0 0 0 15px;
-            backdrop-filter: blur(10px);
-            color: white;
-            text-align: center;
-        }
-
-        .btn-sincro-panel {
-            background: var(--naranja-metal);
-            border: none;
-            color: white;
-            padding: 8px;
-            width: 100%;
-            border-radius: 5px;
-            font-size: 11px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-
-        #timer-text {
-            font-size: 18px;
-            font-weight: bold;
-            color: #ff8c00;
-            display: block;
-            margin: 5px 0;
-        }
-
-        /* Loader de sistema */
-        #loader {
-            position: absolute;
-            inset: 0;
-            background: #000;
-            z-index: 2000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-        }
+        .pestana-smart.abierta { transform: translateX(0); }
+        .ceja { width: 15px; height: 60px; background: var(--naranja-metal); border-radius: 10px 0 0 10px; cursor: pointer; }
+        .panel { background: rgba(10,10,10,0.95); padding: 15px; width: 170px; border-left: 2px solid #ff8c00; text-align: center; color: white; border-radius: 0 0 0 15px; }
+        #reloj { font-size: 20px; font-weight: bold; color: #ffca28; display: block; margin: 10px 0; }
     </style>
 </head>
 <body>
 
 <div class="contenedor-tv">
     <div class="pantalla">
-        
-        <div id="loader">
-            <div style="width: 30px; height: 30px; border: 3px solid #333; border-top-color: #ff8c00; border-radius: 50%; animation: spin 1s linear infinite;"></div>
-            <p style="color: #ff8c00; font-size: 10px; margin-top: 10px; letter-spacing: 2px;">SINTONIZANDO VIVO...</p>
-        </div>
-
-        <div id="miPanel" class="panel-lateral">
-            <div class="tirador" onclick="togglePanel()"></div>
-            <div class="contenido-panel">
-                <span style="font-size: 9px; opacity: 0.7;">PRÓXIMO PROGRAMA EN:</span>
-                <span id="timer-text">00:00:00</span>
-                <button class="btn-sincro-panel" onclick="sincronizarConEfecto()">🔄 SINCRONIZAR</button>
+        <div id="pestana" class="pestana-smart">
+            <div class="ceja" onclick="document.getElementById('pestana').classList.toggle('abierta')"></div>
+            <div class="panel">
+                <span style="font-size: 10px; opacity: 0.7;">SIGUIENTE PROGRAMA EN:</span>
+                <span id="reloj">00:00:00</span>
+                <button onclick="forzarSincro()" style="background:var(--naranja-metal); border:none; color:white; padding:8px; width:100%; border-radius:5px; cursor:pointer; font-weight:bold; font-size:10px;">SINCRONIZAR VIVO</button>
             </div>
         </div>
-
         <video id="player" playsinline controls></video>
     </div>
 </div>
@@ -141,76 +42,65 @@
 <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
 <script>
     const playlist = [
-        { title: "Riesgo de Vuelo", url: "https://ia800900.us.archive.org/28/items/1.-riesgo-de-vuelo-2025-espanol_202506/1.Riesgo%20de%20vuelo%202025%F0%9F%87%AE%F0%9F%87%B9%20espa%C3%B1ol.mp4", dur: 7920 },
-        { title: "Intensa Mente 2", url: "https://ia600900.us.archive.org/28/items/1.-riesgo-de-vuelo-2025-espanol_202506/Intensa%20Mente%202.mp4", dur: 5760 },
-        { title: "Cómo entrenar a tu dragón", url: "https://ia600900.us.archive.org/28/items/1.-riesgo-de-vuelo-2025-espanol_202506/C%C3%B3mo%20entrenar%20a%20tu%20drag%C3%B3n%202025.mp4", dur: 6000 }
+        { url: "https://ia800900.us.archive.org/28/items/1.-riesgo-de-vuelo-2025-espanol_202506/1.Riesgo%20de%20vuelo%202025%F0%9F%87%AE%F0%9F%87%B9%20espa%C3%B1ol.mp4", dur: 7920 },
+        { url: "https://ia600900.us.archive.org/28/items/1.-riesgo-de-vuelo-2025-espanol_202506/Intensa%20Mente%202.mp4", dur: 5760 },
+        { url: "https://ia600900.us.archive.org/28/items/1.-riesgo-de-vuelo-2025-espanol_202506/C%C3%B3mo%20entrenar%20a%20tu%20drag%C3%B3n%202025.mp4", dur: 6000 }
     ];
 
     const player = new Plyr('#player', { autoplay: true, muted: true });
-    let timerInterval;
+    // FECHA MAESTRA: 1 de Enero 2025.
+    const T_MAESTRO = new Date("2025-01-01T00:00:00Z").getTime() / 1000;
 
-    function calcularSincronia() {
+    function forzarSincro() {
+        const ahora = Math.floor(Date.now() / 1000);
+        const transcurrido = ahora - T_MAESTRO;
         const total = playlist.reduce((a, b) => a + b.dur, 0);
-        const cycle = Math.floor(Date.now() / 1000) % total;
-        let accum = 0;
+        const enCiclo = transcurrido % total;
 
+        let acum = 0;
         for (let v of playlist) {
-            if (cycle < accum + v.dur) {
-                const diff = (accum + v.dur) - cycle;
-                return { video: v, seek: cycle - accum, restante: diff };
+            if (enCiclo < acum + v.dur) {
+                const seek = enCiclo - acum;
+                player.source = { type: 'video', sources: [{ src: v.url, type: 'video/mp4' }] };
+                player.once('ready', () => {
+                    player.currentTime = seek;
+                    player.play();
+                });
+                break;
             }
-            accum += v.dur;
+            acum += v.dur;
         }
-    }
-
-    function actualizarReloj() {
-        const datos = calcularSincronia();
-        const h = Math.floor(datos.restante / 3600);
-        const m = Math.floor((datos.restante % 3600) / 60);
-        const s = datos.restante % 60;
-        document.getElementById('timer-text').innerText = `${h}:${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
-    }
-
-    function sincronizarConEfecto() {
-        const loader = document.getElementById('loader');
-        loader.style.display = 'flex';
         
-        const info = calcularSincronia();
-        player.source = { type: 'video', sources: [{ src: info.video.url, type: 'video/mp4' }] };
-        
-        player.once('ready', () => {
-            player.currentTime = info.seek;
-            player.play();
-            setTimeout(() => { loader.style.display = 'none'; }, 500);
-        });
-
-        // Abrir pestaña al sincronizar y cerrarla tras 5 segundos
-        const panel = document.getElementById('miPanel');
-        panel.classList.add('abierto');
-        setTimeout(() => { panel.classList.remove('abierto'); }, 5000);
+        // Pestaña aparece 5 seg y se va
+        const p = document.getElementById('pestana');
+        p.classList.add('abierta');
+        setTimeout(() => p.classList.remove('abierta'), 5000);
     }
 
-    function togglePanel() {
-        document.getElementById('miPanel').classList.toggle('abierto');
-    }
+    // Actualiza el reloj de la pestaña cada segundo
+    setInterval(() => {
+        const ahora = Math.floor(Date.now() / 1000) - T_MAESTRO;
+        const total = playlist.reduce((a, b) => a + b.dur, 0);
+        const ciclo = ahora % total;
+        let ac = 0;
+        for (let v of playlist) {
+            if (ciclo < ac + v.dur) {
+                const queda = (ac + v.dur) - ciclo;
+                const h = Math.floor(queda / 3600);
+                const m = Math.floor((queda % 3600) / 60);
+                const s = queda % 60;
+                document.getElementById('reloj').innerText = `${h}:${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
+                break;
+            }
+            ac += v.dur;
+        }
+    }, 1000);
 
-    // Al volver a la pestaña, sincronizar
+    // Sincroniza al cargar y al volver de otra pestaña
+    window.addEventListener('load', forzarSincro);
     document.addEventListener("visibilitychange", () => {
-        if (document.visibilityState === "visible") sincronizarConEfecto();
+        if (document.visibilityState === "visible") forzarSincro();
     });
-
-    window.addEventListener('load', () => {
-        sincronizarConEfecto();
-        setInterval(actualizarReloj, 1000);
-    });
-
-    player.on('ended', sincronizarConEfecto);
-
-    // Animación de rotación
-    const style = document.createElement('style');
-    style.innerHTML = `@keyframes spin { 100% { transform: rotate(360deg); } }`;
-    document.head.appendChild(style);
 </script>
-
 </body>
 </html>
