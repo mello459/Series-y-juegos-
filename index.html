@@ -3,77 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TV Digital Pro</title>
+    <title>TV Digital Pro - Ajustes</title>
     <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
     <style>
         body { background: #000; color: white; font-family: sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; }
         
-        /* REPRODUCTOR GRANDE CON LÍNEAS FINAS */
+        /* MARCO ULTRA FINO */
         .tv-frame { 
-            width: 98%; 
-            max-width: 1000px; 
-            border: 1px solid #ff8c00; /* Línea más fina como pediste */
-            padding: 1px; 
-            border-radius: 5px; 
-            margin-top: 10px; 
-            position: relative; 
+            width: 98%; max-width: 1000px; 
+            border: 1px solid #ff8c00; 
+            padding: 1px; border-radius: 6px; 
+            margin-top: 10px; position: relative; overflow: hidden;
         }
         .tv-screen { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 4px; overflow: hidden; position: relative; }
         #player { width: 100%; height: 100%; object-fit: contain; }
 
-        /* RELOJ QUE DESAPARECE A LOS 5 SEGUNDOS */
+        /* RELOJ TIPO VENTANA (SE DESLIZA) */
         #global-timer { 
-            position: absolute; 
-            top: 10px; 
-            right: 10px; 
-            background: rgba(0,0,0,0.6); 
-            padding: 3px 8px; 
-            border-radius: 3px; 
-            color: #ff8c00; 
-            font-size: 11px; 
-            z-index: 10; 
-            border: 0.5px solid #ff8c00; 
-            font-family: monospace;
-            transition: opacity 1s ease;
-            opacity: 1;
+            position: absolute; top: 10px; right: 10px; 
+            background: rgba(20, 20, 20, 0.9); 
+            padding: 5px 12px; border-radius: 20px; 
+            color: #ff8c00; font-size: 12px; z-index: 10; 
+            border: 1px solid #ff8c00; font-family: monospace;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateY(0);
         }
+        .timer-hidden { transform: translateY(-150%) !important; }
 
-        /* CAMPO DE CLAVE DISCRETO */
-        .access-area { width: 100%; display: flex; justify-content: center; margin: 5px 0; }
+        /* ACCESO PEQUEÑO Y VISIBLE */
+        .access-area { width: 100%; display: flex; justify-content: center; align-items: center; margin: 15px 0; gap: 8px; }
         #key-entry { 
-            background: transparent; 
-            border: none; 
-            color: #0a0a0a; /* Casi invisible */
-            text-align: center; 
-            font-size: 10px; 
-            width: 100px;
-            outline: none;
+            background: #111; border: 1px solid #333; color: white; 
+            text-align: center; font-size: 14px; width: 130px; 
+            border-radius: 6px; padding: 6px; outline: none;
+        }
+        #btn-enter { 
+            background: #ff8c00; border: none; color: black; 
+            padding: 6px 15px; border-radius: 6px; 
+            font-size: 12px; font-weight: bold; cursor: pointer;
         }
 
         /* PUBLICIDAD */
-        .pub-area { width: 95%; height: 85px; background: #050505; border-radius: 8px; border: 1px solid #111; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .pub-area { width: 95%; height: 85px; background: #080808; border-radius: 10px; border: 1px solid #222; display: flex; align-items: center; justify-content: center; overflow: hidden; }
         #img-pub { max-height: 100%; object-fit: contain; }
 
-        /* BLOQUEO DE BARRA */
-        .plyr--video .plyr__controls .plyr__progress__container { pointer-events: none !important; opacity: 0.1; }
-
         /* PANEL ADMIN */
-        #admin-panel { display: none; width: 95%; background: #111; padding: 20px; border-radius: 12px; border: 1px solid #ff8c00; margin: 20px 0; box-sizing: border-box; }
-        input, button { width: 100%; padding: 14px; margin-top: 10px; border-radius: 6px; border: 1px solid #333; background: #000; color: white; }
-        button { background: #ff8c00; border: none; font-weight: bold; }
+        #admin-panel { display: none; width: 95%; background: #111; padding: 20px; border-radius: 12px; border: 1.5px solid #ff8c00; margin: 20px 0; box-sizing: border-box; }
+        input, button { width: 100%; padding: 14px; margin-top: 10px; border-radius: 8px; border: 1px solid #333; background: #000; color: white; }
     </style>
 </head>
 <body>
 
 <div class="tv-frame">
     <div class="tv-screen">
-        <div id="global-timer">Cargando...</div>
+        <div id="global-timer">Restante: --:--</div>
         <video id="player" playsinline controls></video>
     </div>
 </div>
 
 <div class="access-area">
-    <input type="password" id="key-entry" placeholder="..." maxlength="10">
+    <input type="password" id="key-entry" placeholder="Código" maxlength="10">
+    <button id="btn-enter" onclick="openPanel()">ENTRAR</button>
 </div>
 
 <div class="pub-area">
@@ -81,12 +71,12 @@
 </div>
 
 <div id="admin-panel">
-    <h3 style="color:#ff8c00; margin-top:0;">Panel Maestro</h3>
-    <input type="text" id="v-url" placeholder="URL del Video .mp4">
-    <button onclick="control.add()">Emitir Video</button>
-    <input type="text" id="p-url" placeholder="URL de Publicidad" style="margin-top:15px;">
-    <button onclick="control.pub()">Cambiar Banner</button>
-    <button onclick="control.reset()" style="background:#600; margin-top:20px;">VACIAR LISTA</button>
+    <h3 style="color:#ff8c00; margin-top:0;">Panel Administrativo</h3>
+    <input type="text" id="v-url" placeholder="URL .mp4">
+    <button onclick="control.add()">Sincronizar Película</button>
+    <input type="text" id="p-url" placeholder="URL Imagen Banner" style="margin-top:15px;">
+    <button onclick="control.pub()">Cambiar Publicidad</button>
+    <button onclick="control.reset()" style="background:#500; margin-top:30px;">RESETEAR TODO</button>
 </div>
 
 <video id="scanner" style="display:none;" preload="metadata"></video>
@@ -106,22 +96,26 @@
     const db = getDatabase(app);
     const player = new Plyr('#player', { autoplay: true, muted: true, controls: ['play-large', 'play', 'mute', 'volume', 'fullscreen'] });
 
-    const keyInput = document.getElementById('key-entry');
-    const timerDisplay = document.getElementById('global-timer');
+    const timerBox = document.getElementById('global-timer');
 
-    // Función para ocultar reloj tras 5 segundos
-    function hideTimer() {
-        timerDisplay.style.opacity = "1";
-        setTimeout(() => { timerDisplay.style.opacity = "0"; }, 5000);
+    // Función para ocultar reloj como una ventana de celular
+    function startTimerAnimation() {
+        timerBox.classList.remove('timer-hidden');
+        setTimeout(() => {
+            timerBox.classList.add('timer-hidden');
+        }, 5000);
     }
 
-    keyInput.addEventListener('input', () => {
-        if (keyInput.value === "7744118520") {
+    window.openPanel = () => {
+        const pass = document.getElementById('key-entry').value;
+        if (pass === "7744118520") {
             document.getElementById('admin-panel').style.display = 'block';
-            keyInput.style.display = 'none';
-            window.scrollTo(0, document.body.scrollHeight);
+            document.querySelector('.access-area').style.display = 'none';
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        } else {
+            alert("Código Incorrecto");
         }
-    });
+    };
 
     let currentUrl = "";
     const T_BASE = 1735689600;
@@ -139,7 +133,7 @@
             for (let v of list) {
                 if (tEnCiclo < acum + v.dur) {
                     const res = Math.ceil((acum + v.dur) - tEnCiclo);
-                    timerDisplay.innerText = `-${Math.floor(res/60)}:${(res%60)<10?'0':''}${res%60}`;
+                    timerBox.innerText = `Quedan: ${Math.floor(res/60)}:${(res%60)<10?'0':''}${res%60}`;
                     
                     if (currentUrl !== v.url) {
                         currentUrl = v.url;
@@ -147,7 +141,7 @@
                         player.once('ready', () => { 
                             player.currentTime = tEnCiclo - acum; 
                             player.play(); 
-                            hideTimer(); // El reloj aparece 5 seg al cambiar de video
+                            startTimerAnimation();
                         });
                     }
                     break;
@@ -164,7 +158,7 @@
             sc.src = url;
             sc.onloadedmetadata = () => {
                 push(ref(db, 'tv_vfinal/v'), { url, dur: sc.duration });
-                alert("Sincronizado");
+                alert("Película Sincronizada");
                 document.getElementById('v-url').value = "";
             };
         },
