@@ -3,42 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TV Live Android</title>
+    <title>TV Live - Control Temporal</title>
     <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
     <style>
         :root { --naranja: linear-gradient(180deg, #ff8c00 0%, #e65100 100%); }
-        body { background: #000; color: white; font-family: sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; overflow-x: hidden; touch-action: manipulation; }
+        body { background: #000; color: white; font-family: sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; overflow-x: hidden; }
         
-        /* REPRODUCTOR */
-        .tv-frame { width: 95%; max-width: 850px; background: var(--naranja); padding: 5px; border-radius: 15px; margin-top: 15px; position: relative; box-shadow: 0 0 25px rgba(255,140,0,0.4); }
-        .tv-screen { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 10px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+        .tv-frame { 
+            width: 95%; max-width: 850px; 
+            background: var(--naranja); 
+            padding: 35px 8px 8px 8px; 
+            border-radius: 20px; 
+            margin-top: 15px; 
+            position: relative; 
+            box-shadow: 0 0 35px rgba(255,140,0,0.6);
+        }
+
+        /* CUADRITO NARANJA QUE DESAPARECE */
+        #secret-trigger { 
+            position: absolute; 
+            top: 5px; 
+            right: 15px; 
+            width: 60px; 
+            height: 45px; 
+            z-index: 9999; 
+            background: #ff8c00; /* Naranja sólido al inicio */
+            border: 2px solid white;
+            border-radius: 8px;
+            transition: opacity 1s ease; /* Efecto de desvanecimiento */
+        }
+
+        .tv-screen { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 12px; overflow: hidden; display: flex; align-items: center; justify-content: center; position: relative; }
         #player { width: 100%; height: 100%; object-fit: contain; }
 
-        /* ACTIVADOR SECRETO (Invisible en esquina superior derecha) */
-        #secret-touch { position: absolute; top: 0; right: 0; width: 60px; height: 60px; z-index: 999; }
+        .plyr--video .plyr__controls .plyr__progress__container { pointer-events: none !important; opacity: 0.1; }
+        .timer-box { position: absolute; top: 12px; left: 12px; background: rgba(0,0,0,0.9); padding: 6px 14px; border-radius: 8px; color: #ff8c00; font-size: 13px; z-index: 10; border: 1px solid #ff8c00; font-family: monospace; }
 
-        /* PUBLICIDAD */
-        .pub-area { width: 95%; max-width: 850px; height: 90px; margin: 15px 0; background: #0a0a0a; border-radius: 12px; border: 1px solid #222; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .pub-area { width: 95%; max-width: 850px; height: 90px; margin: 15px 0; background: #111; border-radius: 15px; border: 1px solid #333; display: flex; align-items: center; justify-content: center; overflow: hidden; }
         #img-pub { max-height: 100%; object-fit: contain; }
 
-        /* PANEL ADMIN */
-        #admin-panel { display: none; width: 95%; max-width: 850px; background: #111; padding: 15px; border-radius: 15px; border: 2px solid #ff8c00; margin-bottom: 40px; box-sizing: border-box; }
-        input, button { width: 100%; padding: 12px; margin-top: 10px; border-radius: 8px; border: 1px solid #333; background: #222; color: white; font-size: 16px; -webkit-appearance: none; }
+        #admin-panel { display: none; width: 92%; max-width: 800px; background: #121212; padding: 25px; border-radius: 20px; border: 2px solid #ff8c00; margin-bottom: 50px; box-sizing: border-box; }
+        input, button { width: 100%; padding: 15px; margin-top: 10px; border-radius: 10px; border: 1px solid #444; background: #000; color: white; font-size: 16px; }
         button { background: var(--naranja); border: none; font-weight: bold; }
-        .monitor { background: #000; padding: 10px; height: 100px; overflow-y: auto; font-size: 12px; margin-top: 10px; border: 1px solid #222; color: #ff8c00; }
-
-        @media (orientation: landscape) {
-            .tv-frame { width: auto; height: 92vh; margin-top: 5px; }
-            .pub-area, #admin-panel { display: none; }
-        }
+        .monitor { background: #000; padding: 12px; height: 120px; overflow-y: auto; font-size: 12px; margin-top: 12px; border: 1px solid #222; color: #ff8c00; }
     </style>
 </head>
 <body>
 
 <div class="tv-frame">
-    <div id="secret-touch" onclick="checkSecret()"></div>
+    <div id="secret-trigger"></div>
     
     <div class="tv-screen">
+        <div class="timer-box" id="global-timer">Restante: --:--</div>
         <video id="player" playsinline controls></video>
     </div>
 </div>
@@ -48,18 +64,13 @@
 </div>
 
 <div id="admin-panel">
-    <h3 style="margin:0; color:#ff8c00;">Panel Maestro (Móvil)</h3>
-    <label>URL del Video (.mp4):</label>
-    <input type="url" id="v-url" placeholder="Pega el enlace aquí">
-    <button onclick="control.add()">Añadir a Programación</button>
+    <h3 style="margin:0; color:#ff8c00;">Panel Maestro</h3>
+    <input type="text" id="v-url" placeholder="URL Video .mp4">
+    <button onclick="control.add()">Añadir Video</button>
     <div id="v-list" class="monitor"></div>
-    
-    <hr style="border:0.5px solid #222; margin:15px 0;">
-    
-    <label>Imagen Publicidad:</label>
-    <input type="url" id="p-url" placeholder="URL de la imagen">
-    <button onclick="control.pub()">Actualizar Banner</button>
-    <button onclick="control.reset()" style="background:#600; margin-top:20px; font-size:12px;">VACIAR TODO</button>
+    <input type="text" id="p-url" placeholder="URL Banner" style="margin-top:20px;">
+    <button onclick="control.pub()">Cambiar Banner</button>
+    <button onclick="control.reset()" style="background:#800; margin-top:30px;">VACIAR TODO</button>
 </div>
 
 <video id="scanner" style="display:none;" preload="metadata"></video>
@@ -77,51 +88,60 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-    const player = new Plyr('#player', { autoplay: true, muted: true });
-    
-    let clickCount = 0;
-    let clickTimer;
+    const player = new Plyr('#player', { 
+        autoplay: true, 
+        muted: true, 
+        controls: ['play-large', 'play', 'mute', 'volume', 'fullscreen'] 
+    });
+
+    let count = 0;
+    let timer;
     let currentUrl = "";
     const T_BASE = 1735689600;
 
-    // LÓGICA DE TOQUES SECRETOS (5 toques en 2 segundos)
-    window.checkSecret = () => {
-        clickCount++;
-        clearTimeout(clickTimer);
-        clickTimer = setTimeout(() => { clickCount = 0; }, 2000);
+    // LÓGICA PARA DESAPARECER EL CUADRO NARANJA
+    setTimeout(() => {
+        const trigger = document.getElementById('secret-trigger');
+        trigger.style.opacity = "0"; // Se vuelve invisible
+        // Pero sigue funcionando si tocas ahí, aunque no se vea
+    }, 10000); // 10000 milisegundos = 10 segundos
 
-        if (clickCount === 5) {
-            clickCount = 0;
-            const entry = prompt("ACCESO PRIVADO:");
-            if (parseInt(entry) * 2 === 17798) { // Clave 8899
+    // DETECTOR DE TOQUES
+    document.getElementById('secret-trigger').addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        count++;
+        clearTimeout(timer);
+        timer = setTimeout(() => { count = 0; }, 1500);
+
+        if (count === 5) {
+            count = 0;
+            const pass = prompt("CÓDIGO (10 DÍGITOS):");
+            if (pass === "7744118520") {
                 document.getElementById('admin-panel').style.display = 'block';
                 window.scrollTo(0, document.body.scrollHeight);
             }
         }
-    };
+    });
 
-    // SINCRONIZACIÓN
+    // SINCRONIZACIÓN (IDÉNTICA A LA ANTERIOR)
     onValue(ref(db, 'tv_vfinal'), (snap) => {
         const d = snap.val();
         if (!d) return;
         if (d.p) document.getElementById('img-pub').src = d.p;
-
         const list = d.v ? Object.values(d.v) : [];
         if (list.length > 0) {
             const ahora = Math.floor(Date.now() / 1000);
             const totalD = list.reduce((a, b) => a + b.dur, 0);
             const tEnCiclo = (ahora - T_BASE) % totalD;
-
             let acum = 0;
             for (let v of list) {
                 if (tEnCiclo < acum + v.dur) {
+                    const res = Math.ceil((acum + v.dur) - tEnCiclo);
+                    document.getElementById('global-timer').innerText = `Restante: ${Math.floor(res/60)}:${(res%60)<10?'0':''}${res%60}`;
                     if (currentUrl !== v.url) {
                         currentUrl = v.url;
                         player.source = { type: 'video', sources: [{ src: v.url }] };
-                        player.once('ready', () => {
-                            player.currentTime = tEnCiclo - acum;
-                            player.play();
-                        });
+                        player.once('ready', () => { player.currentTime = tEnCiclo - acum; player.play(); });
                     }
                     break;
                 }
@@ -134,23 +154,16 @@
         add: () => {
             const url = document.getElementById('v-url').value;
             const sc = document.getElementById('scanner');
-            if(!url) return;
             sc.src = url;
-            alert("Analizando video en servidor...");
+            alert("Sincronizando...");
             sc.onloadedmetadata = () => {
-                push(ref(db, 'tv_vfinal/v'), { url: url, dur: sc.duration });
-                alert("Sincronizado con éxito.");
+                push(ref(db, 'tv_vfinal/v'), { url, dur: sc.duration });
+                alert("Añadido");
                 document.getElementById('v-url').value = "";
             };
-            sc.onerror = () => alert("Error: Enlace no compatible.");
         },
-        pub: () => {
-            set(ref(db, 'tv_vfinal/p'), document.getElementById('p-url').value);
-            alert("Publicidad actualizada.");
-        },
-        reset: () => {
-            if(confirm("¿Borrar todo?")) remove(ref(db, 'tv_vfinal/v'));
-        }
+        pub: () => { set(ref(db, 'tv_vfinal/p'), document.getElementById('p-url').value); alert("Publicidad lista"); },
+        reset: () => { if(confirm("¿Borrar todo?")) remove(ref(db, 'tv_vfinal/v')); }
     };
 
     onValue(ref(db, 'tv_vfinal/v'), (snap) => {
@@ -160,5 +173,4 @@
     });
 </script>
 </body>
-    </html>
-    
+</html>
