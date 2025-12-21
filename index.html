@@ -2,264 +2,182 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reproductor de Video con Sincronización</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TV Digital Pro - Ajustes</title>
+    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
     <style>
-        /* Estilos básicos para el reproductor y botones */
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-            background-color: #f0f0f0;
-        }
-
-        .reproductor-container {
-            width: 90%;
-            max-width: 800px;
-            background-color: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.1);
-        }
-
-        video {
-            width: 100%;
-            border-radius: 5px;
-            margin: 15px 0;
-        }
-
-        .url-inputs {
-            margin: 15px 0;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .input-group {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-
-        input[type="url"] {
-            flex: 1;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 14px;
-        }
-
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            font-size: 14px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-        .btn-sincronizar {
-            background-color: #ccc; /* Color original */
-            color: white;
-        }
-
-        .btn-sincronizar.activo {
-            background-color: #28a745; /* Color verde cuando hay URL */
-        }
-
-        .btn-sincronizar:active {
-            background-color: #ccc; /* Vuelve a original al presionar */
-            transform: scale(0.98);
-        }
-
-        .codigo-acceso {
-            margin: 15px 0;
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-
-        input[type="text"] {
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 14px;
-        }
-
-        .btn-acceso {
-            background-color: #007bff;
-            color: white;
-        }
-
-        .mandos-administracion {
-            display: none; /* Oculto por defecto */
-            margin: 15px 0;
-            gap: 10px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
+        body{background:#000;color:#fff;font-family:sans-serif;margin:0;display:flex;flex-direction:column;align-items:center}
+        .tv-frame{width:98%;max-width:1000px;border:1px solid #ff8c00;padding:1px;border-radius:6px;margin-top:10px;position:relative}
+        .tv-screen{width:100%;aspect-ratio:16/9;background:#000;border-radius:4px;overflow:hidden;position:relative}
+        #player{width:100%;height:100%;object-fit:contain}
+        #global-timer{position:absolute;top:10px;right:10px;background:rgba(20,20,20,.9);padding:5px 12px;border-radius:20px;color:#ff8c00;font-size:12px;z-index:10;border:1px solid #ff8c00;font-family:monospace;transition:transform .6s cubic-bezier(.4,0,.2,1)}
+        .timer-hidden{transform:translateY(-150%)}
+        .access-area{width:100%;display:flex;justify-content:center;gap:8px;margin:15px 0}
+        #key-entry{background:#111;border:1px solid #333;color:#fff;width:130px;text-align:center;padding:6px;border-radius:6px}
+        #btn-enter{background:#ff8c00;border:none;color:#000;padding:6px 15px;border-radius:6px;font-weight:bold}
+        .pub-area{width:95%;height:85px;background:#080808;border-radius:10px;border:1px solid #222;display:flex;align-items:center;justify-content:center}
+        #img-pub{max-height:100%;object-fit:contain}
+        #admin-panel{display:none;width:95%;background:#111;padding:20px;border-radius:12px;border:1.5px solid #ff8c00;margin:20px 0}
+        input,button{width:100%;padding:14px;margin-top:10px;border-radius:8px;border:1px solid #333;background:#000;color:#fff}
     </style>
 </head>
+
 <body>
-    <div class="reproductor-container">
-        <h1>Reproductor de Video</h1>
-        
-        <!-- Campo de código de acceso -->
-        <div class="codigo-acceso">
-            <input type="text" id="codigoAcceso" placeholder="Ingresa código de acceso">
-            <button class="btn btn-acceso" onclick="verificarCodigo()">Acceder a Mandos</button>
-        </div>
 
-        <!-- Mandos de administración (ocultos por defecto) -->
-        <div class="mandos-administracion" id="mandosAdmin">
-            <!-- Grupo para URL de video MP4 -->
-            <div class="input-group">
-                <input type="url" id="urlVideo" placeholder="URL del video MP4" required>
-                <button class="btn btn-sincronizar" id="btnSincronizarVideo" onclick="sincronizarURL('video')" disabled>
-                    Sincronizar Video
-                </button>
-            </div>
-
-            <!-- Grupo para URL de publicidad -->
-            <div class="input-group">
-                <input type="url" id="urlPublicidad" placeholder="URL del video de publicidad" required>
-                <button class="btn btn-sincronizar" id="btnSincronizarPublicidad" onclick="sincronizarURL('publicidad')" disabled>
-                    Sincronizar Publicidad
-                </button>
-            </div>
-        </div>
-
-        <!-- Reproductor de video -->
-        <video id="reproductorVideo" controls autoplay muted>
-            Tu navegador no soporta el elemento de video.
-        </video>
+<div class="tv-frame">
+    <div class="tv-screen">
+        <div id="global-timer">Restante: --:--</div>
+        <video id="player" playsinline controls></video>
     </div>
+</div>
 
-    <!-- SDK de Firebase (asegúrate de usar tu propia configuración) -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js"></script>
+<div class="access-area">
+    <input type="password" id="key-entry" placeholder="Código" maxlength="10">
+    <button id="btn-enter" onclick="openPanel()">ENTRAR</button>
+</div>
 
-    <script>
-        // 1. CONFIGURACIÓN DE FIREBASE (REEMPLAZA CON TU PROPIA CONFIGURACIÓN)
-        const firebaseConfig = {
-            apiKey: "TU_API_KEY_AQUI",
-            authDomain: "TU_AUTH_DOMAIN_AQUI",
-            databaseURL: "TU_DATABASE_URL_AQUI",
-            projectId: "TU_PROJECT_ID_AQUI",
-            storageBucket: "TU_STORAGE_BUCKET_AQUI",
-            messagingSenderId: "TU_MESSAGING_SENDER_ID_AQUI",
-            appId: "TU_APP_ID_AQUI"
-        };
+<div class="pub-area">
+    <img id="img-pub" alt="Publicidad"> <!-- Añadido alt para accesibilidad -->
+</div>
 
-        // Inicializar Firebase
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
+<div id="admin-panel">
+    <h3 style="color:#ff8c00;margin-top:0">Panel Administrativo</h3>
+    <input type="text" id="v-url" placeholder="URL .mp4">
+    <button onclick="control.add()">Sincronizar Película</button>
+    <input type="text" id="p-url" placeholder="URL Imagen Banner">
+    <button onclick="control.pub()">Cambiar Publicidad</button>
+    <button onclick="control.reset()" style="background:#500">RESETEAR TODO</button>
+</div>
 
-        // Elementos del DOM
-        const reproductor = document.getElementById('reproductorVideo');
-        const codigoAccesoInput = document.getElementById('codigoAcceso');
-        const mandosAdmin = document.getElementById('mandosAdmin');
-        const urlVideoInput = document.getElementById('urlVideo');
-        const urlPublicidadInput = document.getElementById('urlPublicidad');
-        const btnSincronizarVideo = document.getElementById('btnSincronizarVideo');
-        const btnSincronizarPublicidad = document.getElementById('btnSincronizarPublicidad');
+<video id="scanner" preload="metadata" style="display:none"></video>
 
-        // Código de acceso (el que mencionaste antes)
-        const CODIGO_VALIDO = "7744118520";
+<script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
 
-        // 2. FUNCIÓN PARA VERIFICAR CÓDIGO DE ACCESO
-        function verificarCodigo() {
-            const codigo = codigoAccesoInput.value.trim();
-            if (codigo === CODIGO_VALIDO) {
-                mandosAdmin.style.display = "flex";
-                alert("Acceso concedido a mandos de administración!");
-            } else {
-                alert("Código incorrecto. Intenta nuevamente.");
-            }
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getDatabase, ref, onValue, set, push, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+    /* 🔥 FIREBASE REAL YA INTEGRADO */
+    const firebaseConfig = {
+        apiKey: "TU_API_KEY", // Reemplaza con tu API Key
+        databaseURL: "https://TU_PROYECTO.firebaseio.com", // Reemplaza con la URL de tu base de datos
+        projectId: "series-y-juegos-tv-489b9"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    const player = new Plyr('#player',{autoplay:true,muted:true});
+    const timerBox = document.getElementById('global-timer');
+    const imgPub = document.getElementById('img-pub'); // Referencia correcta al elemento img
+    const vUrlInput = document.getElementById('v-url'); // Referencia correcta al input de video
+    const pUrlInput = document.getElementById('p-url'); // Referencia correcta al input de publicidad
+    let currentUrl = "";
+    const T_BASE = 1735689600;
+
+    // CÓDIGO DE SEGURIDAD - AJUSTALO AQUÍ SI ES NECESARIO
+    const CODIGO_SEGURIDAD = "9876543210"; // Código provisional establecido
+
+    function startTimer(){
+        timerBox.classList.remove('timer-hidden');
+        setTimeout(()=>timerBox.classList.add('timer-hidden'),5000);
+    }
+
+    window.openPanel=()=>{
+        if(document.getElementById('key-entry').value === CODIGO_SEGURIDAD){
+            document.getElementById('admin-panel').style.display='block';
+            document.querySelector('.access-area').style.display='none';
+        } else alert("Código Incorrecto");
+    };
+
+    onValue(ref(db,'tv_vfinal'),snap=>{
+        const d = snap.val();
+        if(!d) return;
+        // Falla corregida: Asignación de URL de publicidad (antes: img-pub.src=d.p — sintaxis inválida)
+        if(d.p) {
+            imgPub.src = d.p;
+            // Añadido manejo de error si la imagen no carga
+            imgPub.onerror = () => {
+                imgPub.src = "";
+            };
         }
 
-        // 3. FUNCIÓN PARA ACTIVAR BOTÓN CUANDO HAY URL
-        function actualizarEstadoBoton(input, boton) {
-            if (input.value.trim() !== "") {
-                boton.classList.add('activo');
-                boton.disabled = false;
-            } else {
-                boton.classList.remove('activo');
-                boton.disabled = true;
+        const list = d.v ? Object.values(d.v) : [];
+        if(!list.length) return;
+        const now = Math.floor(Date.now()/1000);
+        const total = list.reduce((a,b)=>a + (b.dur || 0), 0); // Añadido control de duración indefinida
+        if(total === 0) return; // Evitar división por cero
+        let t = (now - T_BASE) % total, acc = 0;
+        for(const v of list){
+            if(t < acc + (v.dur || 0)){
+                if(currentUrl !== v.url && v.url){ // Control de URL vacía
+                    currentUrl = v.url;
+                    player.source = {
+                        type: 'video',
+                        sources: [{src: v.url, type: 'video/mp4'}]
+                    };
+                    player.once('ready',()=>{
+                        player.currentTime = Math.max(0, t - acc);
+                        player.play().catch(err => {
+                            console.error("Error al reproducir video:", err);
+                            alert("No se pudo reproducir el video. Verifica la URL.");
+                        }); // Manejo de error de reproducción
+                        startTimer();
+                    });
+                    // Manejo de error si el video no carga
+                    player.on('error', () => {
+                        alert("Error al cargar el video. Verifica la URL o el formato .mp4.");
+                    });
+                }
+                break;
             }
+            acc += (v.dur || 0);
         }
+    });
 
-        // Escuchar cambios en los inputs de URL
-        urlVideoInput.addEventListener('input', () => {
-            actualizarEstadoBoton(urlVideoInput, btnSincronizarVideo);
-        });
-
-        urlPublicidadInput.addEventListener('input', () => {
-            actualizarEstadoBoton(urlPublicidadInput, btnSincronizarPublicidad);
-        });
-
-        // 4. FUNCIÓN DE SINCRONIZACIÓN DE URL
-        function sincronizarURL(tipo) {
-            let url, rutaDatabase;
-
-            // Definir URL y ruta en Firebase según el tipo
-            if (tipo === 'video') {
-                url = urlVideoInput.value.trim();
-                rutaDatabase = 'configuracion/video/url';
-            } else if (tipo === 'publicidad') {
-                url = urlPublicidadInput.value.trim();
-                rutaDatabase = 'configuracion/publicidad/url';
-            } else {
-                alert("Tipo de URL no válido");
+    window.control={
+        add(){
+            const sc = document.getElementById('scanner');
+            const url = vUrlInput.value.trim(); // Obtener valor del input (antes: v-url.value — sintaxis inválida)
+            if(!url) {
+                alert("Por favor, ingresa una URL de video .mp4 válida.");
                 return;
             }
-
-            // Guardar en Firebase
-            database.ref(rutaDatabase).set(url)
-                .then(() => {
-                    alert(`URL de ${tipo} sincronizada correctamente!`);
-                    // Cargar la URL en el reproductor (solo para video principal)
-                    if (tipo === 'video') {
-                        reproductor.src = url;
-                        reproductor.load();
-                    }
-                    // Limpiar input y volver botón a color original
-                    if (tipo === 'video') urlVideoInput.value = "";
-                    if (tipo === 'publicidad') urlPublicidadInput.value = "";
-                    actualizarEstadoBoton(
-                        tipo === 'video' ? urlVideoInput : urlPublicidadInput,
-                        tipo === 'video' ? btnSincronizarVideo : btnSincronizarPublicidad
-                    );
-                })
-                .catch(error => {
-                    alert(`Error al sincronizar: ${error.message}`);
+            sc.src = url;
+            sc.onloadedmetadata = () => {
+                push(ref(db,'tv_vfinal/v'), {
+                    url: url,
+                    dur: Math.floor(sc.duration) || 0 // Control de duración indefinida
                 });
+                vUrlInput.value = ""; // Limpiar input después de guardar
+                alert("Video sincronizado exitosamente!");
+            };
+            // Manejo de error si no se carga la metadata del video
+            sc.onerror = () => {
+                alert("No se pudo cargar el video. Verifica la URL o que sea un formato .mp4 válido.");
+            };
+        },
+        pub(){
+            const url = pUrlInput.value.trim(); // Obtener valor del input (antes: p-url.value — sintaxis inválida)
+            if(!url) {
+                alert("Por favor, ingresa una URL de imagen válida.");
+                return;
+            }
+            set(ref(db,'tv_vfinal/p'), url);
+            pUrlInput.value = ""; // Limpiar input después de guardar
+            alert("Publicidad actualizada exitosamente!");
+        },
+        reset(){
+            if(confirm("¿Borrar toda la lista de videos? Esta acción no se puede deshacer.")){
+                remove(ref(db,'tv_vfinal/v'));
+                currentUrl = "";
+                player.source = {type: 'video', sources: []}; // Limpiar reproductor
+                alert("Lista de videos reseteada exitosamente!");
+            }
         }
+    };
+</script>
 
-        // 5. CARGAR URL GUARDADA EN FIREBASE AL INICIAR
-        window.addEventListener('load', () => {
-            // Cargar URL de video principal
-            database.ref('configuracion/video/url').once('value')
-                .then(snapshot => {
-                    const urlGuardada = snapshot.val();
-                    if (urlGuardada) {
-                        reproductor.src = urlGuardada;
-                        reproductor.load();
-                    }
-                });
-
-            // Cargar URL de publicidad (puedes agregar lógica para reproducirla antes del video)
-            database.ref('configuracion/publicidad/url').once('value')
-                .then(snapshot => {
-                    const urlPublicidadGuardada = snapshot.val();
-                    if (urlPublicidadGuardada) {
-                        console.log("URL de publicidad guardada:", urlPublicidadGuardada);
-                        // Aquí podrías agregar lógica para reproducir la publicidad primero
-                    }
-                });
-        });
-    </script>
 </body>
-</html>
+    </html>
+    
