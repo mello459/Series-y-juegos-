@@ -3,60 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TV Live - Control Temporal</title>
+    <title>TV Digital Pro</title>
     <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
     <style>
-        :root { --naranja: linear-gradient(180deg, #ff8c00 0%, #e65100 100%); }
-        body { background: #000; color: white; font-family: sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; overflow-x: hidden; }
+        body { background: #000; color: white; font-family: sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; }
         
+        /* REPRODUCTOR MÁS GRANDE Y LÍNEAS FINAS */
         .tv-frame { 
-            width: 95%; max-width: 850px; 
-            background: var(--naranja); 
-            padding: 35px 8px 8px 8px; 
-            border-radius: 20px; 
-            margin-top: 15px; 
+            width: 98%; /* Casi pantalla completa */
+            max-width: 1000px; 
+            border: 2px solid #ff8c00; /* Línea naranja fina */
+            padding: 2px; 
+            border-radius: 8px; 
+            margin-top: 10px; 
             position: relative; 
-            box-shadow: 0 0 35px rgba(255,140,0,0.6);
+            box-shadow: 0 0 15px rgba(255,140,0,0.3);
         }
-
-        /* CUADRITO NARANJA QUE DESAPARECE */
-        #secret-trigger { 
-            position: absolute; 
-            top: 5px; 
-            right: 15px; 
-            width: 60px; 
-            height: 45px; 
-            z-index: 9999; 
-            background: #ff8c00; /* Naranja sólido al inicio */
-            border: 2px solid white;
-            border-radius: 8px;
-            transition: opacity 1s ease; /* Efecto de desvanecimiento */
-        }
-
-        .tv-screen { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 12px; overflow: hidden; display: flex; align-items: center; justify-content: center; position: relative; }
+        .tv-screen { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 6px; overflow: hidden; position: relative; }
         #player { width: 100%; height: 100%; object-fit: contain; }
 
-        .plyr--video .plyr__controls .plyr__progress__container { pointer-events: none !important; opacity: 0.1; }
-        .timer-box { position: absolute; top: 12px; left: 12px; background: rgba(0,0,0,0.9); padding: 6px 14px; border-radius: 8px; color: #ff8c00; font-size: 13px; z-index: 10; border: 1px solid #ff8c00; font-family: monospace; }
+        /* ACCESO POR CLAVE (DEBAJO DEL VIDEO) */
+        .access-area { width: 100%; display: flex; justify-content: center; margin: 10px 0; }
+        #key-entry { 
+            background: transparent; 
+            border: none; 
+            border-bottom: 1px solid #222; 
+            color: #111; /* Color muy oscuro para que casi no se vea */
+            text-align: center; 
+            font-size: 12px; 
+            width: 120px;
+            outline: none;
+        }
+        #key-entry:focus { color: #555; border-bottom: 1px solid #ff8c00; }
 
-        .pub-area { width: 95%; max-width: 850px; height: 90px; margin: 15px 0; background: #111; border-radius: 15px; border: 1px solid #333; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        /* PUBLICIDAD */
+        .pub-area { width: 95%; height: 80px; background: #0a0a0a; border-radius: 10px; border: 1px solid #222; display: flex; align-items: center; justify-content: center; overflow: hidden; }
         #img-pub { max-height: 100%; object-fit: contain; }
 
-        #admin-panel { display: none; width: 92%; max-width: 800px; background: #121212; padding: 25px; border-radius: 20px; border: 2px solid #ff8c00; margin-bottom: 50px; box-sizing: border-box; }
-        input, button { width: 100%; padding: 15px; margin-top: 10px; border-radius: 10px; border: 1px solid #444; background: #000; color: white; font-size: 16px; }
-        button { background: var(--naranja); border: none; font-weight: bold; }
-        .monitor { background: #000; padding: 12px; height: 120px; overflow-y: auto; font-size: 12px; margin-top: 12px; border: 1px solid #222; color: #ff8c00; }
+        /* RELOJ Y BLOQUEO */
+        .plyr--video .plyr__controls .plyr__progress__container { pointer-events: none !important; opacity: 0.1; }
+        .timer-box { position: absolute; top: 8px; left: 8px; background: rgba(0,0,0,0.8); padding: 4px 8px; border-radius: 4px; color: #ff8c00; font-size: 12px; z-index: 10; border: 1px solid #ff8c00; font-family: monospace; }
+
+        /* PANEL ADMIN */
+        #admin-panel { display: none; width: 95%; background: #111; padding: 20px; border-radius: 15px; border: 2px solid #ff8c00; margin: 20px 0; box-sizing: border-box; }
+        input, button { width: 100%; padding: 15px; margin-top: 10px; border-radius: 8px; border: 1px solid #333; background: #000; color: white; font-size: 16px; }
+        button { background: #ff8c00; border: none; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div class="tv-frame">
-    <div id="secret-trigger"></div>
-    
     <div class="tv-screen">
-        <div class="timer-box" id="global-timer">Restante: --:--</div>
+        <div class="timer-box" id="global-timer">Cargando...</div>
         <video id="player" playsinline controls></video>
     </div>
+</div>
+
+<div class="access-area">
+    <input type="password" id="key-entry" placeholder="..." maxlength="10">
 </div>
 
 <div class="pub-area">
@@ -64,13 +68,12 @@
 </div>
 
 <div id="admin-panel">
-    <h3 style="margin:0; color:#ff8c00;">Panel Maestro</h3>
-    <input type="text" id="v-url" placeholder="URL Video .mp4">
-    <button onclick="control.add()">Añadir Video</button>
-    <div id="v-list" class="monitor"></div>
-    <input type="text" id="p-url" placeholder="URL Banner" style="margin-top:20px;">
+    <h3 style="color:#ff8c00; margin-top:0;">Panel Maestro</h3>
+    <input type="text" id="v-url" placeholder="URL del Video .mp4">
+    <button onclick="control.add()">Añadir a Programación</button>
+    <input type="text" id="p-url" placeholder="URL de Publicidad" style="margin-top:15px;">
     <button onclick="control.pub()">Cambiar Banner</button>
-    <button onclick="control.reset()" style="background:#800; margin-top:30px;">VACIAR TODO</button>
+    <button onclick="control.reset()" style="background:#600; margin-top:20px;">BORRAR TODO</button>
 </div>
 
 <video id="scanner" style="display:none;" preload="metadata"></video>
@@ -88,42 +91,20 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-    const player = new Plyr('#player', { 
-        autoplay: true, 
-        muted: true, 
-        controls: ['play-large', 'play', 'mute', 'volume', 'fullscreen'] 
-    });
+    const player = new Plyr('#player', { autoplay: true, muted: true, controls: ['play-large', 'play', 'mute', 'volume', 'fullscreen'] });
 
-    let count = 0;
-    let timer;
-    let currentUrl = "";
-    const T_BASE = 1735689600;
-
-    // LÓGICA PARA DESAPARECER EL CUADRO NARANJA
-    setTimeout(() => {
-        const trigger = document.getElementById('secret-trigger');
-        trigger.style.opacity = "0"; // Se vuelve invisible
-        // Pero sigue funcionando si tocas ahí, aunque no se vea
-    }, 10000); // 10000 milisegundos = 10 segundos
-
-    // DETECTOR DE TOQUES
-    document.getElementById('secret-trigger').addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        count++;
-        clearTimeout(timer);
-        timer = setTimeout(() => { count = 0; }, 1500);
-
-        if (count === 5) {
-            count = 0;
-            const pass = prompt("CÓDIGO (10 DÍGITOS):");
-            if (pass === "7744118520") {
-                document.getElementById('admin-panel').style.display = 'block';
-                window.scrollTo(0, document.body.scrollHeight);
-            }
+    const keyInput = document.getElementById('key-entry');
+    keyInput.addEventListener('input', () => {
+        if (keyInput.value === "7744118520") {
+            document.getElementById('admin-panel').style.display = 'block';
+            keyInput.style.display = 'none'; // Se oculta al entrar
+            window.scrollTo(0, document.body.scrollHeight);
         }
     });
 
-    // SINCRONIZACIÓN (IDÉNTICA A LA ANTERIOR)
+    let currentUrl = "";
+    const T_BASE = 1735689600;
+
     onValue(ref(db, 'tv_vfinal'), (snap) => {
         const d = snap.val();
         if (!d) return;
@@ -155,22 +136,15 @@
             const url = document.getElementById('v-url').value;
             const sc = document.getElementById('scanner');
             sc.src = url;
-            alert("Sincronizando...");
             sc.onloadedmetadata = () => {
                 push(ref(db, 'tv_vfinal/v'), { url, dur: sc.duration });
-                alert("Añadido");
+                alert("Video Sincronizado");
                 document.getElementById('v-url').value = "";
             };
         },
-        pub: () => { set(ref(db, 'tv_vfinal/p'), document.getElementById('p-url').value); alert("Publicidad lista"); },
+        pub: () => { set(ref(db, 'tv_vfinal/p'), document.getElementById('p-url').value); alert("Banner Actualizado"); },
         reset: () => { if(confirm("¿Borrar todo?")) remove(ref(db, 'tv_vfinal/v')); }
     };
-
-    onValue(ref(db, 'tv_vfinal/v'), (snap) => {
-        const div = document.getElementById('v-list');
-        div.innerHTML = "";
-        snap.forEach(c => { div.innerHTML += `• ${c.val().url.split('/').pop()}<br>`; });
-    });
 </script>
 </body>
 </html>
