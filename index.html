@@ -1,4 +1,4 @@
-   <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -55,7 +55,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, onValue, set, push, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { getDatabase, ref, onValue, set, push, remove, orderByKey } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
     /* 🔥 FIREBASE REAL YA INTEGRADO Y COMPLETO */
     const firebaseConfig = {
@@ -69,10 +69,11 @@
 
     const player = new Plyr('#player',{autoplay:true,muted:true});
     const timerBox = document.getElementById('global-timer');
-    const imgPub = document.getElementById('img-pub'); // Referencia correcta al elemento img
-    const vUrlInput = document.getElementById('v-url'); // Referencia correcta al input de video
-    const pUrlInput = document.getElementById('p-url'); // Referencia correcta al input de publicidad
+    const imgPub = document.getElementById('img-pub');
+    const vUrlInput = document.getElementById('v-url');
+    const pUrlInput = document.getElementById('p-url');
     let currentUrl = "";
+    let currentVideoIndex = 0; // Índice del video que se está reproduciendo
     const T_BASE = 1735689600;
 
     // 🆕 CÓDIGO DE SEGURIDAD PARA PANEL DE CONTROL
@@ -90,48 +91,115 @@
         } else alert("Código Incorrecto");
     };
 
+    // 🛠️ FUNCIÓN PRINCIPAL: Reproducir el video correspondiente
+    function reproducirVideoCorrespondiente(list) {
+        if(!list.length) return;
+
+        const now = Math.floor(Date.now()/1000);
+        const total = list.reduce((a,b)=>a + (b.dur || 0), 0);
+        if(total === 0) return;
+
+        // Cálculo correcto de 't' en el rango global
+        let t = (now - T_BASE) % total;
+        if (t < 0) t += total;
+
+        let acc = 0;
+        let videoEncontrado = false;
+
+        // Buscar el video que le toca en el tiempo global
+        for(let i = 0; i < list.length; i++){
+            const v = list[i];
+            const duracionVideo = v.dur || 0;
+            if(t < acc + duracionVideo && duracionVideo > 0){
+                // Si es el mismo video que se está reproduciendo, no hacemos nada
+                if(currentUrl === v.url) return;
+
+                // Si es un video nuevo, lo reproducimos en su tiempo correspondiente
+                currentUrl = v.url;
+                currentVideoIndex = i;
+                player.source = {
+                    type: 'video',
+                    sources: [{src: v.url, type: 'video/mp4'}]
+                };
+                player.once('ready',()=>{
+                    player.currentTime = Math.max(0, t - acc);
+                    player.play().catch(err => {
+                        console.error("Error al reproducir video:", err);
+                        alert("No se pudo reproducir el video. Verifica la URL.");
+                    });
+                    startTimer();
+                });
+                videoEncontrado = true;
+                break;
+            }
+            acc += duracionVideo;
+        }
+
+        // Si no se encontró, reproducir el primer video (por si hay un error en el cálculo)
+        if(!videoEncontrado && list[0].url){
+            currentUrl = list[0].url;
+            currentVideoIndex = 0;
+            player.source = {
+                type: 'video',
+                sources: [{src: list[0].url, type: 'video/mp4'}]
+            };
+            player.once('ready',()=>{
+                player.play().catch(err => {
+                    console.error("Error al reproducir video:", err);
+                    alert("No se pudo reproducir el video. Verifica la URL.");
+                });
+                startTimer();
+            });
+        }
+    }
+
+    // 🛠️ FUNCIÓN: Reproducir el siguiente video en la lista
+    function reproducirSiguienteVideo(list) {
+        if(!list.length) return;
+
+        // Pasar al siguiente video (o al primero si es el último)
+        currentVideoIndex = (currentVideoIndex + 1) % list.length;
+        const siguienteVideo = list[currentVideoIndex];
+
+        if(siguienteVideo.url && siguienteVideo.dur > 0){
+            currentUrl = siguienteVideo.url;
+            player.source = {
+                type: 'video',
+                sources: [{src: siguienteVideo.url, type: 'video/mp4'}]
+            };
+            player.once('ready',()=>{
+                player.currentTime = 0;
+                player.play().catch(err => {
+                    console.error("Error al reproducir siguiente video:", err);
+                    alert("No se pudo reproducir el siguiente video. Verifica la URL.");
+                });
+                startTimer();
+            });
+        }
+    }
+
+    // 🛠️ DETECTAR CUANDO SE SUBA UNA NUEVA URL (enseguida)
     onValue(ref(db,'tv_vfinal'),snap=>{
         const d = snap.val();
         if(!d) return;
-        // Falla corregida: Asignación de URL de publicidad
+
+        // Actualizar publicidad
         if(d.p) {
             imgPub.src = d.p;
-            // Manejo de error si la imagen no carga
             imgPub.onerror = () => {
                 imgPub.src = "https://via.placeholder.com/800x85?text=Publicidad+No+Disponible";
             };
         }
 
-        const list = d.v ? Object.values(d.v) : [];
-        if(!list.length) return;
-        const now = Math.floor(Date.now()/1000);
-        const total = list.reduce((a,b)=>a + (b.dur || 0), 0);
-        if(total === 0) return;
-        let t = (now - T_BASE) % total, acc = 0;
-        for(const v of list){
-            if(t < acc + (v.dur || 0)){
-                if(currentUrl !== v.url && v.url){
-                    currentUrl = v.url;
-                    player.source = {
-                        type: 'video',
-                        sources: [{src: v.url, type: 'video/mp4'}]
-                    };
-                    player.once('ready',()=>{
-                        player.currentTime = Math.max(0, t - acc);
-                        player.play().catch(err => {
-                            console.error("Error al reproducir video:", err);
-                            alert("No se pudo reproducir el video. Verifica la URL.");
-                        });
-                        startTimer();
-                    });
-                    player.on('error', () => {
-                        alert("Error al cargar el video. Verifica la URL o el formato .mp4.");
-                    });
-                }
-                break;
-            }
-            acc += (v.dur || 0);
-        }
+        // Obtener lista de videos ORDENADA por el orden en que se subieron
+        const list = d.v ? Object.values(d.v).sort((a,b) => (a.timestamp || 0) - (b.timestamp || 0)) : [];
+        reproducirVideoCorrespondiente(list);
+
+        // Escuchar cuando acabe el video para pasar al siguiente
+        player.off('ended'); // Quitar escucha anterior para evitar duplicados
+        player.on('ended', () => {
+            reproducirSiguienteVideo(list);
+        });
     });
 
     window.control={
@@ -144,12 +212,14 @@
             }
             sc.src = url;
             sc.onloadedmetadata = () => {
+                // Añadir TIMESTAMP para mantener el orden de subida
                 push(ref(db,'tv_vfinal/v'), {
                     url: url,
-                    dur: Math.floor(sc.duration) || 0
+                    dur: Math.floor(sc.duration) || 0,
+                    timestamp: Date.now() // Marca de tiempo para ordenar
                 });
                 vUrlInput.value = "";
-                alert("Video sincronizado exitosamente!");
+                alert("Video sincronizado exitosamente! (se detectará enseguida)");
             };
             sc.onerror = () => {
                 alert("No se pudo cargar el video. Verifica la URL o que sea un formato .mp4 válido.");
@@ -169,6 +239,7 @@
             if(confirm("¿Borrar toda la lista de videos? Esta acción no se puede deshacer.")){
                 remove(ref(db,'tv_vfinal/v'));
                 currentUrl = "";
+                currentVideoIndex = 0;
                 player.source = {type: 'video', sources: []};
                 alert("Lista de videos reseteada exitosamente!");
             }
