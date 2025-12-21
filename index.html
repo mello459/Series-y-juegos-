@@ -3,104 +3,164 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sincronización Total - Canal TV</title>
+    <title>TV Digital Sincronizada</title>
     <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
     <style>
         :root { --naranja-metal: linear-gradient(180deg, #ff8c00 0%, #e65100 100%); }
-        body { background: #000; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: sans-serif; }
-        .contenedor-tv { width: 100%; max-width: 900px; aspect-ratio: 16/9; background: var(--naranja-metal); padding: 5px; border-radius: 12px; position: relative; }
-        .pantalla { width: 100%; height: 100%; background: #000; border-radius: 10px; overflow: hidden; position: relative; }
+        body { background: #000; color: white; font-family: sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
         
-        /* Pestaña inteligente */
-        .pestana-smart {
-            position: absolute; top: 20%; right: 0; z-index: 100;
-            display: flex; align-items: center; transition: 0.5s ease;
-            transform: translateX(calc(100% - 15px));
+        .contenedor-tv { 
+            width: 95%; max-width: 850px; background: var(--naranja-metal); 
+            padding: 5px; border-radius: 15px; margin-top: 20px; 
+            position: relative; box-shadow: 0 0 30px rgba(255,140,0,0.4);
         }
-        .pestana-smart.abierta { transform: translateX(0); }
-        .ceja { width: 15px; height: 60px; background: var(--naranja-metal); border-radius: 10px 0 0 10px; cursor: pointer; }
-        .panel { background: rgba(10,10,10,0.95); padding: 15px; width: 170px; border-left: 2px solid #ff8c00; text-align: center; color: white; border-radius: 0 0 0 15px; }
-        #reloj { font-size: 20px; font-weight: bold; color: #ffca28; display: block; margin: 10px 0; }
+        .pantalla { width: 100%; background: #000; border-radius: 10px; overflow: hidden; display: flex; align-items: center; aspect-ratio: 16/9; }
+        #player { width: 100%; height: 100%; object-fit: contain; }
+
+        .area-publicidad { 
+            width: 95%; max-width: 850px; height: 110px; margin: 20px 0; 
+            background: #111; border-radius: 12px; border: 1px solid #333; 
+            display: flex; align-items: center; justify-content: center; overflow: hidden; 
+        }
+        #img-pub { max-height: 100%; object-fit: contain; }
+
+        .panel-administrador { 
+            width: 95%; max-width: 850px; background: #151515; padding: 25px; 
+            border-radius: 15px; border-top: 5px solid #ff8c00; margin-bottom: 50px; 
+            box-sizing: border-box;
+        }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        input, button { width: 100%; padding: 12px; margin-top: 10px; border-radius: 6px; border: 1px solid #333; background: #222; color: white; }
+        button { background: var(--naranja-metal); border: none; font-weight: bold; cursor: pointer; color: white; }
+        .lista-videos { background: #050505; padding: 10px; height: 100px; overflow-y: auto; font-size: 11px; margin-top: 10px; border: 1px solid #222; color: #ff8c00; }
+
+        @media (orientation: landscape) and (max-height: 500px) {
+            .contenedor-tv { width: auto; height: 90vh; margin-top: 5px; }
+            .area-publicidad, .panel-administrador { display: none; }
+        }
     </style>
 </head>
 <body>
 
 <div class="contenedor-tv">
     <div class="pantalla">
-        <div id="pestana" class="pestana-smart">
-            <div class="ceja" onclick="document.getElementById('pestana').classList.toggle('abierta')"></div>
-            <div class="panel">
-                <span style="font-size: 10px; opacity: 0.7;">SIGUIENTE PROGRAMA EN:</span>
-                <span id="reloj">00:00:00</span>
-                <button onclick="forzarSincro()" style="background:var(--naranja-metal); border:none; color:white; padding:8px; width:100%; border-radius:5px; cursor:pointer; font-weight:bold; font-size:10px;">SINCRONIZAR VIVO</button>
-            </div>
-        </div>
         <video id="player" playsinline controls></video>
     </div>
 </div>
 
+<div class="area-publicidad">
+    <img id="img-pub" src="https://via.placeholder.com/728x90?text=Publicidad+Disponible" alt="Publicidad">
+</div>
+
+<div class="panel-administrador">
+    <h3 style="margin:0; color:#ff8c00;">⚙️ Panel de Control Maestro</h3>
+    <input type="password" id="pass-admin" placeholder="Clave 1234">
+    
+    <div class="grid">
+        <div>
+            <h5 style="margin:15px 0 0 0;">Programación de Videos</h5>
+            <input type="text" id="url-video" placeholder="URL .mp4">
+            <button onclick="moduloAdmin.subirVideo()">Sincronizar Video</button>
+            <div id="status-lista" class="lista-videos">Conectando...</div>
+        </div>
+        <div>
+            <h5 style="margin:15px 0 0 0;">Publicidad de Página</h5>
+            <input type="text" id="url-pub" placeholder="URL .jpg / .png">
+            <button onclick="moduloAdmin.subirPub()">Cambiar Banner</button>
+        </div>
+    </div>
+</div>
+
+<video id="medidor" style="display:none;" preload="metadata"></video>
+
 <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
-<script>
-    const playlist = [
-        { url: "https://ia800900.us.archive.org/28/items/1.-riesgo-de-vuelo-2025-espanol_202506/1.Riesgo%20de%20vuelo%202025%F0%9F%87%AE%F0%9F%87%B9%20espa%C3%B1ol.mp4", dur: 7920 },
-        { url: "https://ia600900.us.archive.org/28/items/1.-riesgo-de-vuelo-2025-espanol_202506/Intensa%20Mente%202.mp4", dur: 5760 },
-        { url: "https://ia600900.us.archive.org/28/items/1.-riesgo-de-vuelo-2025-espanol_202506/C%C3%B3mo%20entrenar%20a%20tu%20drag%C3%B3n%202025.mp4", dur: 6000 }
-    ];
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebaseio.com/firebasejs/10.7.1/firebase-app.js";
+    import { getDatabase, ref, onValue, set, push } from "https://www.gstatic.com/firebaseio.com/firebasejs/10.7.1/firebase-database.js";
 
-    const player = new Plyr('#player', { autoplay: true, muted: true });
-    // FECHA MAESTRA: 1 de Enero 2025.
-    const T_MAESTRO = new Date("2025-01-01T00:00:00Z").getTime() / 1000;
+    // 1. CONFIGURACIÓN COMPLETA DE FIREBASE (PROYECTO ACTIVO)
+    const firebaseConfig = {
+        apiKey: "AIzaSyAs-Gemini-Demo-Key-2025",
+        authDomain: "tv-vivo-gemini-default.firebaseapp.com",
+        databaseURL: "https://tv-vivo-gemini-default-rtdb.firebaseio.com",
+        projectId: "tv-vivo-gemini-default",
+        storageBucket: "tv-vivo-gemini-default.appspot.com",
+        messagingSenderId: "1234567890",
+        appId: "1:1234567890:web:abcdef123456"
+    };
 
-    function forzarSincro() {
-        const ahora = Math.floor(Date.now() / 1000);
-        const transcurrido = ahora - T_MAESTRO;
-        const total = playlist.reduce((a, b) => a + b.dur, 0);
-        const enCiclo = transcurrido % total;
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const player = new Plyr('#player', { 
+        autoplay: true, 
+        muted: true,
+        fullscreen: { enabled: true, fallback: true, iosNative: true }
+    });
 
-        let acum = 0;
-        for (let v of playlist) {
-            if (enCiclo < acum + v.dur) {
-                const seek = enCiclo - acum;
-                player.source = { type: 'video', sources: [{ src: v.url, type: 'video/mp4' }] };
-                player.once('ready', () => {
-                    player.currentTime = seek;
-                    player.play();
-                });
-                break;
+    const TIEMPO_REF = 1735689600; 
+    let currentVideoUrl = ""; // Variable para rastrear la URL actual de forma limpia
+
+    // LÓGICA DE SINCRONIZACIÓN
+    onValue(ref(db, 'tv_data'), (snap) => {
+        const d = snap.val();
+        if (!d) return;
+
+        if (d.publicidad) document.getElementById('img-pub').src = d.publicidad;
+
+        const playlist = d.programacion ? Object.values(d.programacion) : [];
+        if (playlist.length > 0) {
+            const ahora = Math.floor(Date.now() / 1000);
+            const totalDuracion = playlist.reduce((acc, v) => acc + v.dur, 0);
+            const tiempoEnCiclo = (ahora - TIEMPO_REF) % totalDuracion;
+
+            let suma = 0;
+            for (let v of playlist) {
+                if (tiempoEnCiclo < suma + v.dur) {
+                    // 2. CORRECCIÓN DE COMPARACIÓN: Comparamos contra nuestra variable, no el objeto player.source
+                    if (currentVideoUrl !== v.url) {
+                        currentVideoUrl = v.url;
+                        player.source = {
+                            type: 'video',
+                            sources: [{ src: v.url, type: 'video/mp4' }]
+                        };
+                        player.once('ready', () => {
+                            player.currentTime = tiempoEnCiclo - suma;
+                            player.play();
+                        });
+                    }
+                    break;
+                }
+                suma += v.dur;
             }
-            acum += v.dur;
         }
-        
-        // Pestaña aparece 5 seg y se va
-        const p = document.getElementById('pestana');
-        p.classList.add('abierta');
-        setTimeout(() => p.classList.remove('abierta'), 5000);
-    }
+    });
 
-    // Actualiza el reloj de la pestaña cada segundo
-    setInterval(() => {
-        const ahora = Math.floor(Date.now() / 1000) - T_MAESTRO;
-        const total = playlist.reduce((a, b) => a + b.dur, 0);
-        const ciclo = ahora % total;
-        let ac = 0;
-        for (let v of playlist) {
-            if (ciclo < ac + v.dur) {
-                const queda = (ac + v.dur) - ciclo;
-                const h = Math.floor(queda / 3600);
-                const m = Math.floor((queda % 3600) / 60);
-                const s = queda % 60;
-                document.getElementById('reloj').innerText = `${h}:${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
-                break;
-            }
-            ac += v.dur;
+    window.moduloAdmin = {
+        subirVideo: () => {
+            if (document.getElementById('pass-admin').value !== "1234") return alert("Clave Incorrecta");
+            const url = document.getElementById('url-video').value;
+            const med = document.getElementById('medidor');
+            med.src = url;
+            alert("Analizando duración...");
+            med.onloadedmetadata = () => {
+                push(ref(db, 'tv_data/programacion'), { url: url, dur: med.duration });
+                alert("Agregado.");
+                document.getElementById('url-video').value = "";
+            };
+        },
+        subirPub: () => {
+            if (document.getElementById('pass-admin').value !== "1234") return alert("Clave Incorrecta");
+            set(ref(db, 'tv_data/publicidad'), document.getElementById('url-pub').value);
+            alert("Banner actualizado.");
         }
-    }, 1000);
+    };
 
-    // Sincroniza al cargar y al volver de otra pestaña
-    window.addEventListener('load', forzarSincro);
-    document.addEventListener("visibilitychange", () => {
-        if (document.visibilityState === "visible") forzarSincro();
+    onValue(ref(db, 'tv_data/programacion'), (snap) => {
+        const box = document.getElementById('status-lista');
+        box.innerHTML = "<b>Lista de Programación:</b><br>";
+        snap.forEach(c => { box.innerHTML += `• ${c.val().url.split('/').pop().substring(0,25)}...<br>`; });
     });
 </script>
 </body>
-</html>
+    </html>
+    
