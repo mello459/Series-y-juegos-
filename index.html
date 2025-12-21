@@ -6,122 +6,231 @@
 <title>TV Digital Pro - Ajustes</title>
 <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
 <style>
-body{background:#000;color:#fff;font-family:sans-serif;margin:0;display:flex;flex-direction:column;align-items:center}
-.tv-frame{width:98%;max-width:1000px;border:1px solid #ff8c00;padding:1px;border-radius:6px;margin-top:10px;position:relative}
-.tv-screen{width:100%;aspect-ratio:16/9;background:#000;border-radius:4px;overflow:hidden;position:relative}
-#player{width:100%;height:100%;object-fit:contain}
-#global-timer{position:absolute;top:10px;right:10px;background:rgba(20,20,20,.9);padding:5px 12px;border-radius:20px;color:#ff8c00;font-size:12px;z-index:10;border:1px solid #ff8c00;font-family:monospace;transition:transform .6s cubic-bezier(.4,0,.2,1)}
-.timer-hidden{transform:translateY(-150%)}
-.access-area{width:100%;display:flex;justify-content:center;gap:8px;margin:15px 0}
-#key-entry{background:#111;border:1px solid #333;color:#fff;width:130px;text-align:center;padding:6px;border-radius:6px}
-#btn-enter{background:#ff8c00;border:none;color:#000;padding:6px 15px;border-radius:6px;font-weight:bold}
-.pub-area{width:95%;height:85px;background:#080808;border-radius:10px;border:1px solid #222;display:flex;align-items:center;justify-content:center}
-#img-pub{max-height:100%;object-fit:contain}
-#admin-panel{display:none;width:95%;background:#111;padding:20px;border-radius:12px;border:1.5px solid #ff8c00;margin:20px 0}
-input,button{width:100%;padding:14px;margin-top:10px;border-radius:8px;border:1px solid #333;background:#000;color:#fff}
+body {
+  background: #000;
+  color: #fff;
+  font-family: sans-serif;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.tv-frame {
+  width: 98%;
+  max-width: 1000px;
+  border: 1px solid #ff8c00;
+  padding: 1px;
+  border-radius: 6px;
+  margin-top: 10px;
+  position: relative;
+}
+
+.tv-screen {
+  width: 100%;
+  aspect-ratio: 16/9;
+  background: #000;
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+
+#player {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+#global-timer {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(20, 20, 20, .9);
+  padding: 5px 12px;
+  border-radius: 20px;
+  color: #ff8c00;
+  font-size: 12px;
+  z-index: 10;
+  border: 1px solid #ff8c00;
+  font-family: monospace;
+  transition: transform .6s cubic-bezier(.4, 0, .2, 1)
+}
+
+.timer-hidden {
+  transform: translateY(-150%)
+}
+
+.access-area {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin: 15px 0
+}
+
+#key-entry {
+  background: #111;
+  border: 1px solid #333;
+  color: #fff;
+  width: 130px;
+  text-align: center;
+  padding: 6px;
+  border-radius: 6px
+}
+
+#btn-enter {
+  background: #ff8c00;
+  border: none;
+  color: #000;
+  padding: 6px 15px;
+  border-radius: 6px;
+  font-weight: bold
+}
+
+.pub-area {
+  width: 95%;
+  height: 85px;
+  background: #080808;
+  border-radius: 10px;
+  border: 1px solid #222;
+  display: flex;
+  align-items: center;
+  justify-content: center
+}
+
+#img-pub {
+  max-height: 100%;
+  object-fit: contain
+}
+
+#admin-panel {
+  display: none;
+  width: 95%;
+  background: #111;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1.5px solid #ff8c00;
+  margin: 20px 0
+}
+
+input,
+button {
+  width: 100%;
+  padding: 14px;
+  margin-top: 10px;
+  border-radius: 8px;
+  border: 1px solid #333;
+  background: #000;
+  color: #fff
+}
 </style>
 </head>
 
 <body>
 
-<div class="tv-frame">
-  <div class="tv-screen">
-    <div id="global-timer">Restante: --:--</div>
-    <video id="player" playsinline controls></video>
+  <div class="tv-frame">
+    <div class="tv-screen">
+      <div id="global-timer">Restante: --:--</div>
+      <video id="player" playsinline controls></video>
+    </div>
   </div>
-</div>
 
-<div class="access-area">
-  <input type="password" id="key-entry" placeholder="Código" maxlength="10">
-  <button id="btn-enter" onclick="openPanel()">ENTRAR</button>
-</div>
+  <div class="access-area">
+    <input type="password" id="key-entry" placeholder="Código" maxlength="10">
+    <button id="btn-enter" onclick="openPanel()">ENTRAR</button>
+  </div>
 
-<div class="pub-area">
-  <img id="img-pub">
-</div>
+  <div class="pub-area">
+    <img id="img-pub" src="">
+  </div>
 
-<div id="admin-panel">
-  <h3 style="color:#ff8c00;margin-top:0">Panel Administrativo</h3>
-  <input type="text" id="v-url" placeholder="URL .mp4">
-  <button onclick="control.add()">Sincronizar Película</button>
-  <input type="text" id="p-url" placeholder="URL Imagen Banner">
-  <button onclick="control.pub()">Cambiar Publicidad</button>
-  <button onclick="control.reset()" style="background:#500">RESETEAR TODO</button>
-</div>
+  <div id="admin-panel">
+    <h3 style="color:#ff8c00;margin-top:0">Panel Administrativo</h3>
+    <input type="text" id="v-url" placeholder="URL .mp4">
+    <button onclick="control.add()">Sincronizar Película</button>
+    <input type="text" id="p-url" placeholder="URL Imagen Banner">
+    <button onclick="control.pub()">Cambiar Publicidad</button>
+    <button onclick="control.reset()" style="background:#500">RESETEAR TODO</button>
+  </div>
 
-<video id="scanner" preload="metadata" style="display:none"></video>
+  <video id="scanner" preload="metadata" style="display:none"></video>
 
-<script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
+  <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase, ref, onValue, set, push, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getDatabase, ref, onValue, set, push, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-/* 🔥 FIREBASE REAL YA INTEGRADO */
-const firebaseConfig = {
-  apiKey: "AIzaSyBKPWYBnjpbij9XOoK2-rgdAfsYPmk8r4o",
-  databaseURL: "https://series-y-juegos-tv-489b9-default-rtdb.firebaseio.com",
-  projectId: "series-y-juegos-tv-489b9"
-};
+    /* 🔥 FIREBASE REAL YA INTEGRADO */
+    const firebaseConfig = {
+      apiKey: "AIzaSyBKPWYBnjpbij9XOoK2-rgdAfsYPmk8r4o",
+      databaseURL: "https://series-y-juegos-tv-489b9-default-rtdb.firebaseio.com",
+      projectId: "series-y-juegos-tv-489b9"
+    };
 
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
 
-const player = new Plyr('#player',{autoplay:true,muted:true});
-const timerBox = document.getElementById('global-timer');
-let currentUrl = "";
-const T_BASE = 1735689600;
+    const player = new Plyr('#player', { autoplay: true, muted: true });
+    const timerBox = document.getElementById('global-timer');
+    let currentUrl = "";
+    const T_BASE = 1735689600;
 
-function startTimer(){
-  timerBox.classList.remove('timer-hidden');
-  setTimeout(()=>timerBox.classList.add('timer-hidden'),5000);
-}
-
-window.openPanel=()=>{
-  if(document.getElementById('key-entry').value==="7744118520"){
-    document.getElementById('admin-panel').style.display='block';
-    document.querySelector('.access-area').style.display='none';
-  } else alert("Código Incorrecto");
-};
-
-onValue(ref(db,'tv_vfinal'),snap=>{
-  const d=snap.val();
-  if(!d) return;
-  if(d.p) img-pub.src=d.p;
-
-  const list=d.v?Object.values(d.v):[];
-  if(!list.length) return;
-
-  const now=Math.floor(Date.now()/1000);
-  const total=list.reduce((a,b)=>a+b.dur,0);
-  let t=(now-T_BASE)%total,acc=0;
-
-  for(const v of list){
-    if(t<acc+v.dur){
-      if(currentUrl!==v.url){
-        currentUrl=v.url;
-        player.source={type:'video',sources:[{src:v.url,type:'video/mp4'}]};
-        player.once('ready',()=>{
-          player.currentTime=Math.max(0,t-acc);
-          player.play();startTimer();
-        });
-      }
-      break;
+    function startTimer() {
+      timerBox.classList.remove('timer-hidden');
+      setTimeout(() => timerBox.classList.add('timer-hidden'), 5000);
     }
-    acc+=v.dur;
-  }
-});
 
-window.control={
-  add(){
-    const sc=document.getElementById('scanner');
-    sc.src=v-url.value;
-    sc.onloadedmetadata=()=>push(ref(db,'tv_vfinal/v'),{url:v-url.value,dur:Math.floor(sc.duration)});
-  },
-  pub(){set(ref(db,'tv_vfinal/p'),p-url.value)},
-  reset(){if(confirm("¿Borrar todo?")) remove(ref(db,'tv_vfinal/v'))}
-};
-</script>
+    window.openPanel = () => {
+      if (document.getElementById('key-entry').value === "7744118520") {
+        document.getElementById('admin-panel').style.display = 'block';
+        document.querySelector('.access-area').style.display = 'none';
+      } else alert("Código Incorrecto");
+    };
+
+    onValue(ref(db, 'tv_vfinal'), snap => {
+      const d = snap.val();
+      if (!d) return;
+      if (d.p) document.getElementById('img-pub').src = d.p;
+
+      const list = d.v ? Object.values(d.v) : [];
+      if (!list.length) return;
+
+      const now = Math.floor(Date.now() / 1000);
+      const total = list.reduce((a, b) => a + b.dur, 0);
+      let t = (now - T_BASE) % total, acc = 0;
+
+      for (const v of list) {
+        if (t < acc + v.dur) {
+          if (currentUrl !== v.url) {
+            currentUrl = v.url;
+            player.source = { type: 'video', sources: [{ src: v.url, type: 'video/mp4' }] };
+            player.once('ready', () => {
+              player.currentTime = Math.max(0, t - acc);
+              player.play(); startTimer();
+            });
+          }
+          break;
+        }
+        acc += v.dur;
+      }
+    });
+
+    window.control = {
+      add() {
+        const sc = document.getElementById('scanner');
+        const vUrlValue = document.getElementById('v-url').value;
+        sc.src = vUrlValue;
+        sc.onloadedmetadata = () => push(ref(db, 'tv_vfinal/v'), { url: vUrlValue, dur: Math.floor(sc.duration) });
+      },
+      pub() {
+        const pUrlValue = document.getElementById('p-url').value;
+        set(ref(db, 'tv_vfinal/p'), pUrlValue);
+      },
+      reset() { if (confirm("¿Borrar todo?")) remove(ref(db, 'tv_vfinal/v')) }
+    };
+  </script>
 
 </body>
+
 </html>
