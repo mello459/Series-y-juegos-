@@ -8,45 +8,58 @@
     <style>
         body { background: #000; color: white; font-family: sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; }
         
-        /* REPRODUCTOR MÁS GRANDE Y LÍNEAS FINAS */
+        /* REPRODUCTOR GRANDE CON LÍNEAS FINAS */
         .tv-frame { 
-            width: 98%; /* Casi pantalla completa */
+            width: 98%; 
             max-width: 1000px; 
-            border: 2px solid #ff8c00; /* Línea naranja fina */
-            padding: 2px; 
-            border-radius: 8px; 
+            border: 1px solid #ff8c00; /* Línea más fina como pediste */
+            padding: 1px; 
+            border-radius: 5px; 
             margin-top: 10px; 
             position: relative; 
-            box-shadow: 0 0 15px rgba(255,140,0,0.3);
         }
-        .tv-screen { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 6px; overflow: hidden; position: relative; }
+        .tv-screen { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 4px; overflow: hidden; position: relative; }
         #player { width: 100%; height: 100%; object-fit: contain; }
 
-        /* ACCESO POR CLAVE (DEBAJO DEL VIDEO) */
-        .access-area { width: 100%; display: flex; justify-content: center; margin: 10px 0; }
+        /* RELOJ QUE DESAPARECE A LOS 5 SEGUNDOS */
+        #global-timer { 
+            position: absolute; 
+            top: 10px; 
+            right: 10px; 
+            background: rgba(0,0,0,0.6); 
+            padding: 3px 8px; 
+            border-radius: 3px; 
+            color: #ff8c00; 
+            font-size: 11px; 
+            z-index: 10; 
+            border: 0.5px solid #ff8c00; 
+            font-family: monospace;
+            transition: opacity 1s ease;
+            opacity: 1;
+        }
+
+        /* CAMPO DE CLAVE DISCRETO */
+        .access-area { width: 100%; display: flex; justify-content: center; margin: 5px 0; }
         #key-entry { 
             background: transparent; 
             border: none; 
-            border-bottom: 1px solid #222; 
-            color: #111; /* Color muy oscuro para que casi no se vea */
+            color: #0a0a0a; /* Casi invisible */
             text-align: center; 
-            font-size: 12px; 
-            width: 120px;
+            font-size: 10px; 
+            width: 100px;
             outline: none;
         }
-        #key-entry:focus { color: #555; border-bottom: 1px solid #ff8c00; }
 
         /* PUBLICIDAD */
-        .pub-area { width: 95%; height: 80px; background: #0a0a0a; border-radius: 10px; border: 1px solid #222; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .pub-area { width: 95%; height: 85px; background: #050505; border-radius: 8px; border: 1px solid #111; display: flex; align-items: center; justify-content: center; overflow: hidden; }
         #img-pub { max-height: 100%; object-fit: contain; }
 
-        /* RELOJ Y BLOQUEO */
+        /* BLOQUEO DE BARRA */
         .plyr--video .plyr__controls .plyr__progress__container { pointer-events: none !important; opacity: 0.1; }
-        .timer-box { position: absolute; top: 8px; left: 8px; background: rgba(0,0,0,0.8); padding: 4px 8px; border-radius: 4px; color: #ff8c00; font-size: 12px; z-index: 10; border: 1px solid #ff8c00; font-family: monospace; }
 
         /* PANEL ADMIN */
-        #admin-panel { display: none; width: 95%; background: #111; padding: 20px; border-radius: 15px; border: 2px solid #ff8c00; margin: 20px 0; box-sizing: border-box; }
-        input, button { width: 100%; padding: 15px; margin-top: 10px; border-radius: 8px; border: 1px solid #333; background: #000; color: white; font-size: 16px; }
+        #admin-panel { display: none; width: 95%; background: #111; padding: 20px; border-radius: 12px; border: 1px solid #ff8c00; margin: 20px 0; box-sizing: border-box; }
+        input, button { width: 100%; padding: 14px; margin-top: 10px; border-radius: 6px; border: 1px solid #333; background: #000; color: white; }
         button { background: #ff8c00; border: none; font-weight: bold; }
     </style>
 </head>
@@ -54,7 +67,7 @@
 
 <div class="tv-frame">
     <div class="tv-screen">
-        <div class="timer-box" id="global-timer">Cargando...</div>
+        <div id="global-timer">Cargando...</div>
         <video id="player" playsinline controls></video>
     </div>
 </div>
@@ -70,10 +83,10 @@
 <div id="admin-panel">
     <h3 style="color:#ff8c00; margin-top:0;">Panel Maestro</h3>
     <input type="text" id="v-url" placeholder="URL del Video .mp4">
-    <button onclick="control.add()">Añadir a Programación</button>
+    <button onclick="control.add()">Emitir Video</button>
     <input type="text" id="p-url" placeholder="URL de Publicidad" style="margin-top:15px;">
     <button onclick="control.pub()">Cambiar Banner</button>
-    <button onclick="control.reset()" style="background:#600; margin-top:20px;">BORRAR TODO</button>
+    <button onclick="control.reset()" style="background:#600; margin-top:20px;">VACIAR LISTA</button>
 </div>
 
 <video id="scanner" style="display:none;" preload="metadata"></video>
@@ -94,10 +107,18 @@
     const player = new Plyr('#player', { autoplay: true, muted: true, controls: ['play-large', 'play', 'mute', 'volume', 'fullscreen'] });
 
     const keyInput = document.getElementById('key-entry');
+    const timerDisplay = document.getElementById('global-timer');
+
+    // Función para ocultar reloj tras 5 segundos
+    function hideTimer() {
+        timerDisplay.style.opacity = "1";
+        setTimeout(() => { timerDisplay.style.opacity = "0"; }, 5000);
+    }
+
     keyInput.addEventListener('input', () => {
         if (keyInput.value === "7744118520") {
             document.getElementById('admin-panel').style.display = 'block';
-            keyInput.style.display = 'none'; // Se oculta al entrar
+            keyInput.style.display = 'none';
             window.scrollTo(0, document.body.scrollHeight);
         }
     });
@@ -118,11 +139,16 @@
             for (let v of list) {
                 if (tEnCiclo < acum + v.dur) {
                     const res = Math.ceil((acum + v.dur) - tEnCiclo);
-                    document.getElementById('global-timer').innerText = `Restante: ${Math.floor(res/60)}:${(res%60)<10?'0':''}${res%60}`;
+                    timerDisplay.innerText = `-${Math.floor(res/60)}:${(res%60)<10?'0':''}${res%60}`;
+                    
                     if (currentUrl !== v.url) {
                         currentUrl = v.url;
                         player.source = { type: 'video', sources: [{ src: v.url }] };
-                        player.once('ready', () => { player.currentTime = tEnCiclo - acum; player.play(); });
+                        player.once('ready', () => { 
+                            player.currentTime = tEnCiclo - acum; 
+                            player.play(); 
+                            hideTimer(); // El reloj aparece 5 seg al cambiar de video
+                        });
                     }
                     break;
                 }
@@ -138,7 +164,7 @@
             sc.src = url;
             sc.onloadedmetadata = () => {
                 push(ref(db, 'tv_vfinal/v'), { url, dur: sc.duration });
-                alert("Video Sincronizado");
+                alert("Sincronizado");
                 document.getElementById('v-url').value = "";
             };
         },
