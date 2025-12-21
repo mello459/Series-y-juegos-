@@ -2,250 +2,54 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TV Digital Pro - Ajustes</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prueba Reproductor</title>
     <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
     <style>
-        body{background:#000;color:#fff;font-family:sans-serif;margin:0;display:flex;flex-direction:column;align-items:center}
-        .tv-frame{width:98%;max-width:1000px;border:1px solid #ff8c00;padding:1px;border-radius:6px;margin-top:10px;position:relative}
-        .tv-screen{width:100%;aspect-ratio:16/9;background:#000;border-radius:4px;overflow:hidden;position:relative}
-        #player{width:100%;height:100%;object-fit:contain}
-        #global-timer{position:absolute;top:10px;right:10px;background:rgba(20,20,20,.9);padding:5px 12px;border-radius:20px;color:#ff8c00;font-size:12px;z-index:10;border:1px solid #ff8c00;font-family:monospace;transition:transform .6s cubic-bezier(.4,0,.2,1)}
-        .timer-hidden{transform:translateY(-150%)}
-        .access-area{width:100%;display:flex;justify-content:center;gap:8px;margin:15px 0}
-        #key-entry{background:#111;border:1px solid #333;color:#fff;width:130px;text-align:center;padding:6px;border-radius:6px}
-        #btn-enter{background:#ff8c00;border:none;color:#000;padding:6px 15px;border-radius:6px;font-weight:bold}
-        .pub-area{width:95%;height:85px;background:#080808;border-radius:10px;border:1px solid #222;display:flex;align-items:center;justify-content:center}
-        #img-pub{max-height:100%;object-fit:contain}
-        #admin-panel{display:none;width:95%;background:#111;padding:20px;border-radius:12px;border:1.5px solid #ff8c00;margin:20px 0}
-        input,button{width:100%;padding:14px;margin-top:10px;border-radius:8px;border:1px solid #333;background:#000;color:#fff}
+        body { background: #000; display: flex; justify-content: center; padding-top: 20px; }
+        #player { width: 90%; max-width: 800px; }
+        .plyr__video-wrapper::before {
+            content: 'Toca el botón de Play para iniciar el video';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 20px;
+            z-index: 2;
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 10px;
+            border-radius: 5px;
+        }
     </style>
 </head>
-
 <body>
+    <video id="player" playsinline controls muted></video>
 
-<div class="tv-frame">
-    <div class="tv-screen">
-        <div id="global-timer">Restante: --:--</div>
-        <video id="player" playsinline controls></video>
-    </div>
-</div>
+    <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
+    <script>
+        // Solo el reproductor y tu video
+        const player = new Plyr('#player');
+        
+        // Cargar tu video DIRECTAMENTE
+        player.source = {
+            type: 'video',
+            sources: [{
+                src: "https://ia600900.us.archive.org/28/items/1.-riesgo-de-vuelo-2025-espanol_202506/Intensa%20Mente%202.mp4",
+                type: 'video/mp4'
+            }]
+        };
 
-<div class="access-area">
-    <input type="password" id="key-entry" placeholder="Código" maxlength="10">
-    <button id="btn-enter" onclick="openPanel()">ENTRAR</button>
-</div>
-
-<div class="pub-area">
-    <img id="img-pub" alt="Publicidad"> <!-- Añadido alt para accesibilidad -->
-</div>
-
-<div id="admin-panel">
-    <h3 style="color:#ff8c00;margin-top:0">Panel Administrativo</h3>
-    <input type="text" id="v-url" placeholder="URL .mp4">
-    <button onclick="control.add()">Sincronizar Película</button>
-    <input type="text" id="p-url" placeholder="URL Imagen Banner">
-    <button onclick="control.pub()">Cambiar Publicidad</button>
-    <button onclick="control.reset()" style="background:#500">RESETEAR TODO</button>
-</div>
-
-<video id="scanner" preload="metadata" style="display:none"></video>
-
-<script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
-
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, onValue, set, push, remove, orderByKey } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-
-    /* 🔥 FIREBASE REAL YA INTEGRADO Y COMPLETO */
-    const firebaseConfig = {
-        apiKey: "AIzaSyBKPWYBnjpbij9XOoK2-rgdAfsYPmk8r4o",
-        databaseURL: "https://series-y-juegos-tv-489b9-default-rtdb.firebaseio.com",
-        projectId: "series-y-juegos-tv-489b9"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-
-    const player = new Plyr('#player',{autoplay:true,muted:true});
-    const timerBox = document.getElementById('global-timer');
-    const imgPub = document.getElementById('img-pub');
-    const vUrlInput = document.getElementById('v-url');
-    const pUrlInput = document.getElementById('p-url');
-    let currentUrl = "";
-    let currentVideoIndex = 0; // Índice del video que se está reproduciendo
-    const T_BASE = 1735689600;
-
-    // 🆕 CÓDIGO DE SEGURIDAD PARA PANEL DE CONTROL
-    const CODIGO_SEGURIDAD = "2479135860";
-
-    function startTimer(){
-        timerBox.classList.remove('timer-hidden');
-        setTimeout(()=>timerBox.classList.add('timer-hidden'),5000);
-    }
-
-    window.openPanel=()=>{
-        if(document.getElementById('key-entry').value === CODIGO_SEGURIDAD){
-            document.getElementById('admin-panel').style.display='block';
-            document.querySelector('.access-area').style.display='none';
-        } else alert("Código Incorrecto");
-    };
-
-    // 🛠️ FUNCIÓN PRINCIPAL: Reproducir el video correspondiente
-    function reproducirVideoCorrespondiente(list) {
-        if(!list.length) return;
-
-        const now = Math.floor(Date.now()/1000);
-        const total = list.reduce((a,b)=>a + (b.dur || 0), 0);
-        if(total === 0) return;
-
-        // Cálculo correcto de 't' en el rango global
-        let t = (now - T_BASE) % total;
-        if (t < 0) t += total;
-
-        let acc = 0;
-        let videoEncontrado = false;
-
-        // Buscar el video que le toca en el tiempo global
-        for(let i = 0; i < list.length; i++){
-            const v = list[i];
-            const duracionVideo = v.dur || 0;
-            if(t < acc + duracionVideo && duracionVideo > 0){
-                // Si es el mismo video que se está reproduciendo, no hacemos nada
-                if(currentUrl === v.url) return;
-
-                // Si es un video nuevo, lo reproducimos en su tiempo correspondiente
-                currentUrl = v.url;
-                currentVideoIndex = i;
-                player.source = {
-                    type: 'video',
-                    sources: [{src: v.url, type: 'video/mp4'}]
-                };
-                player.once('ready',()=>{
-                    player.currentTime = Math.max(0, t - acc);
-                    player.play().catch(err => {
-                        console.error("Error al reproducir video:", err);
-                        alert("No se pudo reproducir el video. Verifica la URL.");
-                    });
-                    startTimer();
-                });
-                videoEncontrado = true;
-                break;
-            }
-            acc += duracionVideo;
-        }
-
-        // Si no se encontró, reproducir el primer video (por si hay un error en el cálculo)
-        if(!videoEncontrado && list[0].url){
-            currentUrl = list[0].url;
-            currentVideoIndex = 0;
-            player.source = {
-                type: 'video',
-                sources: [{src: list[0].url, type: 'video/mp4'}]
-            };
-            player.once('ready',()=>{
-                player.play().catch(err => {
-                    console.error("Error al reproducir video:", err);
-                    alert("No se pudo reproducir el video. Verifica la URL.");
-                });
-                startTimer();
-            });
-        }
-    }
-
-    // 🛠️ FUNCIÓN: Reproducir el siguiente video en la lista
-    function reproducirSiguienteVideo(list) {
-        if(!list.length) return;
-
-        // Pasar al siguiente video (o al primero si es el último)
-        currentVideoIndex = (currentVideoIndex + 1) % list.length;
-        const siguienteVideo = list[currentVideoIndex];
-
-        if(siguienteVideo.url && siguienteVideo.dur > 0){
-            currentUrl = siguienteVideo.url;
-            player.source = {
-                type: 'video',
-                sources: [{src: siguienteVideo.url, type: 'video/mp4'}]
-            };
-            player.once('ready',()=>{
-                player.currentTime = 0;
-                player.play().catch(err => {
-                    console.error("Error al reproducir siguiente video:", err);
-                    alert("No se pudo reproducir el siguiente video. Verifica la URL.");
-                });
-                startTimer();
-            });
-        }
-    }
-
-    // 🛠️ DETECTAR CUANDO SE SUBA UNA NUEVA URL (enseguida)
-    onValue(ref(db,'tv_vfinal'),snap=>{
-        const d = snap.val();
-        if(!d) return;
-
-        // Actualizar publicidad
-        if(d.p) {
-            imgPub.src = d.p;
-            imgPub.onerror = () => {
-                imgPub.src = "https://via.placeholder.com/800x85?text=Publicidad+No+Disponible";
-            };
-        }
-
-        // Obtener lista de videos ORDENADA por el orden en que se subieron
-        const list = d.v ? Object.values(d.v).sort((a,b) => (a.timestamp || 0) - (b.timestamp || 0)) : [];
-        reproducirVideoCorrespondiente(list);
-
-        // Escuchar cuando acabe el video para pasar al siguiente
-        player.off('ended'); // Quitar escucha anterior para evitar duplicados
-        player.on('ended', () => {
-            reproducirSiguienteVideo(list);
+        // Mensajes para ver qué pasa
+        console.log("Código cargado");
+        player.once('ready', () => {
+            console.log("Video listo para reproducir");
+            // Ya no intentamos dar play automáticamente
         });
-    });
-
-    window.control={
-        add(){
-            const sc = document.getElementById('scanner');
-            const url = vUrlInput.value.trim();
-            if(!url) {
-                alert("Por favor, ingresa una URL de video .mp4 válida.");
-                return;
-            }
-            sc.src = url;
-            sc.onloadedmetadata = () => {
-                // Añadir TIMESTAMP para mantener el orden de subida
-                push(ref(db,'tv_vfinal/v'), {
-                    url: url,
-                    dur: Math.floor(sc.duration) || 0,
-                    timestamp: Date.now() // Marca de tiempo para ordenar
-                });
-                vUrlInput.value = "";
-                alert("Video sincronizado exitosamente! (se detectará enseguida)");
-            };
-            sc.onerror = () => {
-                alert("No se pudo cargar el video. Verifica la URL o que sea un formato .mp4 válido.");
-            };
-        },
-        pub(){
-            const url = pUrlInput.value.trim();
-            if(!url) {
-                alert("Por favor, ingresa una URL de imagen válida.");
-                return;
-            }
-            set(ref(db,'tv_vfinal/p'), url);
-            pUrlInput.value = "";
-            alert("Publicidad actualizada exitosamente!");
-        },
-        reset(){
-            if(confirm("¿Borrar toda la lista de videos? Esta acción no se puede deshacer.")){
-                remove(ref(db,'tv_vfinal/v'));
-                currentUrl = "";
-                currentVideoIndex = 0;
-                player.source = {type: 'video', sources: []};
-                alert("Lista de videos reseteada exitosamente!");
-            }
-        }
-    };
-</script>
-
+        player.on('error', (err) => {
+            console.error("Error del reproductor:", err);
+            alert("Error del reproductor: Verifica la consola");
+        });
+    </script>
 </body>
 </html>
