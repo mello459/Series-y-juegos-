@@ -2,163 +2,161 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TV Digital Sincronizada</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TV Live Android</title>
     <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
     <style>
-        :root { --naranja-metal: linear-gradient(180deg, #ff8c00 0%, #e65100 100%); }
-        body { background: #000; color: white; font-family: sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        :root { --naranja: linear-gradient(180deg, #ff8c00 0%, #e65100 100%); }
+        body { background: #000; color: white; font-family: sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; overflow-x: hidden; touch-action: manipulation; }
         
-        .contenedor-tv { 
-            width: 95%; max-width: 850px; background: var(--naranja-metal); 
-            padding: 5px; border-radius: 15px; margin-top: 20px; 
-            position: relative; box-shadow: 0 0 30px rgba(255,140,0,0.4);
-        }
-        .pantalla { width: 100%; background: #000; border-radius: 10px; overflow: hidden; display: flex; align-items: center; aspect-ratio: 16/9; }
+        /* REPRODUCTOR */
+        .tv-frame { width: 95%; max-width: 850px; background: var(--naranja); padding: 5px; border-radius: 15px; margin-top: 15px; position: relative; box-shadow: 0 0 25px rgba(255,140,0,0.4); }
+        .tv-screen { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 10px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
         #player { width: 100%; height: 100%; object-fit: contain; }
 
-        .area-publicidad { 
-            width: 95%; max-width: 850px; height: 110px; margin: 20px 0; 
-            background: #111; border-radius: 12px; border: 1px solid #333; 
-            display: flex; align-items: center; justify-content: center; overflow: hidden; 
-        }
+        /* ACTIVADOR SECRETO (Invisible en esquina superior derecha) */
+        #secret-touch { position: absolute; top: 0; right: 0; width: 60px; height: 60px; z-index: 999; }
+
+        /* PUBLICIDAD */
+        .pub-area { width: 95%; max-width: 850px; height: 90px; margin: 15px 0; background: #0a0a0a; border-radius: 12px; border: 1px solid #222; display: flex; align-items: center; justify-content: center; overflow: hidden; }
         #img-pub { max-height: 100%; object-fit: contain; }
 
-        .panel-administrador { 
-            width: 95%; max-width: 850px; background: #151515; padding: 25px; 
-            border-radius: 15px; border-top: 5px solid #ff8c00; margin-bottom: 50px; 
-            box-sizing: border-box;
-        }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        input, button { width: 100%; padding: 12px; margin-top: 10px; border-radius: 6px; border: 1px solid #333; background: #222; color: white; }
-        button { background: var(--naranja-metal); border: none; font-weight: bold; cursor: pointer; color: white; }
-        .lista-videos { background: #050505; padding: 10px; height: 100px; overflow-y: auto; font-size: 11px; margin-top: 10px; border: 1px solid #222; color: #ff8c00; }
+        /* PANEL ADMIN */
+        #admin-panel { display: none; width: 95%; max-width: 850px; background: #111; padding: 15px; border-radius: 15px; border: 2px solid #ff8c00; margin-bottom: 40px; box-sizing: border-box; }
+        input, button { width: 100%; padding: 12px; margin-top: 10px; border-radius: 8px; border: 1px solid #333; background: #222; color: white; font-size: 16px; -webkit-appearance: none; }
+        button { background: var(--naranja); border: none; font-weight: bold; }
+        .monitor { background: #000; padding: 10px; height: 100px; overflow-y: auto; font-size: 12px; margin-top: 10px; border: 1px solid #222; color: #ff8c00; }
 
-        @media (orientation: landscape) and (max-height: 500px) {
-            .contenedor-tv { width: auto; height: 90vh; margin-top: 5px; }
-            .area-publicidad, .panel-administrador { display: none; }
+        @media (orientation: landscape) {
+            .tv-frame { width: auto; height: 92vh; margin-top: 5px; }
+            .pub-area, #admin-panel { display: none; }
         }
     </style>
 </head>
 <body>
 
-<div class="contenedor-tv">
-    <div class="pantalla">
+<div class="tv-frame">
+    <div id="secret-touch" onclick="checkSecret()"></div>
+    
+    <div class="tv-screen">
         <video id="player" playsinline controls></video>
     </div>
 </div>
 
-<div class="area-publicidad">
-    <img id="img-pub" src="https://via.placeholder.com/728x90?text=Publicidad+Disponible" alt="Publicidad">
+<div class="pub-area">
+    <img id="img-pub" src="" alt="Publicidad">
 </div>
 
-<div class="panel-administrador">
-    <h3 style="margin:0; color:#ff8c00;">⚙️ Panel de Control Maestro</h3>
-    <input type="password" id="pass-admin" placeholder="Clave 1234">
+<div id="admin-panel">
+    <h3 style="margin:0; color:#ff8c00;">Panel Maestro (Móvil)</h3>
+    <label>URL del Video (.mp4):</label>
+    <input type="url" id="v-url" placeholder="Pega el enlace aquí">
+    <button onclick="control.add()">Añadir a Programación</button>
+    <div id="v-list" class="monitor"></div>
     
-    <div class="grid">
-        <div>
-            <h5 style="margin:15px 0 0 0;">Programación de Videos</h5>
-            <input type="text" id="url-video" placeholder="URL .mp4">
-            <button onclick="moduloAdmin.subirVideo()">Sincronizar Video</button>
-            <div id="status-lista" class="lista-videos">Conectando...</div>
-        </div>
-        <div>
-            <h5 style="margin:15px 0 0 0;">Publicidad de Página</h5>
-            <input type="text" id="url-pub" placeholder="URL .jpg / .png">
-            <button onclick="moduloAdmin.subirPub()">Cambiar Banner</button>
-        </div>
-    </div>
+    <hr style="border:0.5px solid #222; margin:15px 0;">
+    
+    <label>Imagen Publicidad:</label>
+    <input type="url" id="p-url" placeholder="URL de la imagen">
+    <button onclick="control.pub()">Actualizar Banner</button>
+    <button onclick="control.reset()" style="background:#600; margin-top:20px; font-size:12px;">VACIAR TODO</button>
 </div>
 
-<video id="medidor" style="display:none;" preload="metadata"></video>
+<video id="scanner" style="display:none;" preload="metadata"></video>
 
 <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
 <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebaseio.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, onValue, set, push } from "https://www.gstatic.com/firebaseio.com/firebasejs/10.7.1/firebase-database.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getDatabase, ref, onValue, set, push, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-    // 1. CONFIGURACIÓN COMPLETA DE FIREBASE (PROYECTO ACTIVO)
     const firebaseConfig = {
-        apiKey: "AIzaSyAs-Gemini-Demo-Key-2025",
-        authDomain: "tv-vivo-gemini-default.firebaseapp.com",
-        databaseURL: "https://tv-vivo-gemini-default-rtdb.firebaseio.com",
-        projectId: "tv-vivo-gemini-default",
-        storageBucket: "tv-vivo-gemini-default.appspot.com",
-        messagingSenderId: "1234567890",
-        appId: "1:1234567890:web:abcdef123456"
+        apiKey: "TU_API_KEY",
+        databaseURL: "TU_DATABASE_URL",
+        projectId: "TU_PROJECT_ID",
     };
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-    const player = new Plyr('#player', { 
-        autoplay: true, 
-        muted: true,
-        fullscreen: { enabled: true, fallback: true, iosNative: true }
-    });
+    const player = new Plyr('#player', { autoplay: true, muted: true });
+    
+    let clickCount = 0;
+    let clickTimer;
+    let currentUrl = "";
+    const T_BASE = 1735689600;
 
-    const TIEMPO_REF = 1735689600; 
-    let currentVideoUrl = ""; // Variable para rastrear la URL actual de forma limpia
+    // LÓGICA DE TOQUES SECRETOS (5 toques en 2 segundos)
+    window.checkSecret = () => {
+        clickCount++;
+        clearTimeout(clickTimer);
+        clickTimer = setTimeout(() => { clickCount = 0; }, 2000);
 
-    // LÓGICA DE SINCRONIZACIÓN
-    onValue(ref(db, 'tv_data'), (snap) => {
+        if (clickCount === 5) {
+            clickCount = 0;
+            const entry = prompt("ACCESO PRIVADO:");
+            if (parseInt(entry) * 2 === 17798) { // Clave 8899
+                document.getElementById('admin-panel').style.display = 'block';
+                window.scrollTo(0, document.body.scrollHeight);
+            }
+        }
+    };
+
+    // SINCRONIZACIÓN
+    onValue(ref(db, 'tv_vfinal'), (snap) => {
         const d = snap.val();
         if (!d) return;
+        if (d.p) document.getElementById('img-pub').src = d.p;
 
-        if (d.publicidad) document.getElementById('img-pub').src = d.publicidad;
-
-        const playlist = d.programacion ? Object.values(d.programacion) : [];
-        if (playlist.length > 0) {
+        const list = d.v ? Object.values(d.v) : [];
+        if (list.length > 0) {
             const ahora = Math.floor(Date.now() / 1000);
-            const totalDuracion = playlist.reduce((acc, v) => acc + v.dur, 0);
-            const tiempoEnCiclo = (ahora - TIEMPO_REF) % totalDuracion;
+            const totalD = list.reduce((a, b) => a + b.dur, 0);
+            const tEnCiclo = (ahora - T_BASE) % totalD;
 
-            let suma = 0;
-            for (let v of playlist) {
-                if (tiempoEnCiclo < suma + v.dur) {
-                    // 2. CORRECCIÓN DE COMPARACIÓN: Comparamos contra nuestra variable, no el objeto player.source
-                    if (currentVideoUrl !== v.url) {
-                        currentVideoUrl = v.url;
-                        player.source = {
-                            type: 'video',
-                            sources: [{ src: v.url, type: 'video/mp4' }]
-                        };
+            let acum = 0;
+            for (let v of list) {
+                if (tEnCiclo < acum + v.dur) {
+                    if (currentUrl !== v.url) {
+                        currentUrl = v.url;
+                        player.source = { type: 'video', sources: [{ src: v.url }] };
                         player.once('ready', () => {
-                            player.currentTime = tiempoEnCiclo - suma;
+                            player.currentTime = tEnCiclo - acum;
                             player.play();
                         });
                     }
                     break;
                 }
-                suma += v.dur;
+                acum += v.dur;
             }
         }
     });
 
-    window.moduloAdmin = {
-        subirVideo: () => {
-            if (document.getElementById('pass-admin').value !== "1234") return alert("Clave Incorrecta");
-            const url = document.getElementById('url-video').value;
-            const med = document.getElementById('medidor');
-            med.src = url;
-            alert("Analizando duración...");
-            med.onloadedmetadata = () => {
-                push(ref(db, 'tv_data/programacion'), { url: url, dur: med.duration });
-                alert("Agregado.");
-                document.getElementById('url-video').value = "";
+    window.control = {
+        add: () => {
+            const url = document.getElementById('v-url').value;
+            const sc = document.getElementById('scanner');
+            if(!url) return;
+            sc.src = url;
+            alert("Analizando video en servidor...");
+            sc.onloadedmetadata = () => {
+                push(ref(db, 'tv_vfinal/v'), { url: url, dur: sc.duration });
+                alert("Sincronizado con éxito.");
+                document.getElementById('v-url').value = "";
             };
+            sc.onerror = () => alert("Error: Enlace no compatible.");
         },
-        subirPub: () => {
-            if (document.getElementById('pass-admin').value !== "1234") return alert("Clave Incorrecta");
-            set(ref(db, 'tv_data/publicidad'), document.getElementById('url-pub').value);
-            alert("Banner actualizado.");
+        pub: () => {
+            set(ref(db, 'tv_vfinal/p'), document.getElementById('p-url').value);
+            alert("Publicidad actualizada.");
+        },
+        reset: () => {
+            if(confirm("¿Borrar todo?")) remove(ref(db, 'tv_vfinal/v'));
         }
     };
 
-    onValue(ref(db, 'tv_data/programacion'), (snap) => {
-        const box = document.getElementById('status-lista');
-        box.innerHTML = "<b>Lista de Programación:</b><br>";
-        snap.forEach(c => { box.innerHTML += `• ${c.val().url.split('/').pop().substring(0,25)}...<br>`; });
+    onValue(ref(db, 'tv_vfinal/v'), (snap) => {
+        const div = document.getElementById('v-list');
+        div.innerHTML = "";
+        snap.forEach(c => { div.innerHTML += `• ${c.val().url.split('/').pop()}<br>`; });
     });
 </script>
 </body>
