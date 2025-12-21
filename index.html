@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+   <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -57,10 +57,10 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getDatabase, ref, onValue, set, push, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-    /* 🔥 FIREBASE REAL YA INTEGRADO */
+    /* 🔥 FIREBASE REAL YA INTEGRADO Y COMPLETO */
     const firebaseConfig = {
-        apiKey: "TU_API_KEY", // Reemplaza con tu API Key
-        databaseURL: "https://TU_PROYECTO.firebaseio.com", // Reemplaza con la URL de tu base de datos
+        apiKey: "AIzaSyBKPWYBnjpbij9XOoK2-rgdAfsYPmk8r4o",
+        databaseURL: "https://series-y-juegos-tv-489b9-default-rtdb.firebaseio.com",
         projectId: "series-y-juegos-tv-489b9"
     };
 
@@ -75,8 +75,8 @@
     let currentUrl = "";
     const T_BASE = 1735689600;
 
-    // CÓDIGO DE SEGURIDAD - AJUSTALO AQUÍ SI ES NECESARIO
-    const CODIGO_SEGURIDAD = "9876543210"; // Código provisional establecido
+    // 🆕 CÓDIGO DE SEGURIDAD PARA PANEL DE CONTROL
+    const CODIGO_SEGURIDAD = "2479135860";
 
     function startTimer(){
         timerBox.classList.remove('timer-hidden');
@@ -93,24 +93,24 @@
     onValue(ref(db,'tv_vfinal'),snap=>{
         const d = snap.val();
         if(!d) return;
-        // Falla corregida: Asignación de URL de publicidad (antes: img-pub.src=d.p — sintaxis inválida)
+        // Falla corregida: Asignación de URL de publicidad
         if(d.p) {
             imgPub.src = d.p;
-            // Añadido manejo de error si la imagen no carga
+            // Manejo de error si la imagen no carga
             imgPub.onerror = () => {
-                imgPub.src = "";
+                imgPub.src = "https://via.placeholder.com/800x85?text=Publicidad+No+Disponible";
             };
         }
 
         const list = d.v ? Object.values(d.v) : [];
         if(!list.length) return;
         const now = Math.floor(Date.now()/1000);
-        const total = list.reduce((a,b)=>a + (b.dur || 0), 0); // Añadido control de duración indefinida
-        if(total === 0) return; // Evitar división por cero
+        const total = list.reduce((a,b)=>a + (b.dur || 0), 0);
+        if(total === 0) return;
         let t = (now - T_BASE) % total, acc = 0;
         for(const v of list){
             if(t < acc + (v.dur || 0)){
-                if(currentUrl !== v.url && v.url){ // Control de URL vacía
+                if(currentUrl !== v.url && v.url){
                     currentUrl = v.url;
                     player.source = {
                         type: 'video',
@@ -121,10 +121,9 @@
                         player.play().catch(err => {
                             console.error("Error al reproducir video:", err);
                             alert("No se pudo reproducir el video. Verifica la URL.");
-                        }); // Manejo de error de reproducción
+                        });
                         startTimer();
                     });
-                    // Manejo de error si el video no carga
                     player.on('error', () => {
                         alert("Error al cargar el video. Verifica la URL o el formato .mp4.");
                     });
@@ -138,7 +137,7 @@
     window.control={
         add(){
             const sc = document.getElementById('scanner');
-            const url = vUrlInput.value.trim(); // Obtener valor del input (antes: v-url.value — sintaxis inválida)
+            const url = vUrlInput.value.trim();
             if(!url) {
                 alert("Por favor, ingresa una URL de video .mp4 válida.");
                 return;
@@ -147,31 +146,30 @@
             sc.onloadedmetadata = () => {
                 push(ref(db,'tv_vfinal/v'), {
                     url: url,
-                    dur: Math.floor(sc.duration) || 0 // Control de duración indefinida
+                    dur: Math.floor(sc.duration) || 0
                 });
-                vUrlInput.value = ""; // Limpiar input después de guardar
+                vUrlInput.value = "";
                 alert("Video sincronizado exitosamente!");
             };
-            // Manejo de error si no se carga la metadata del video
             sc.onerror = () => {
                 alert("No se pudo cargar el video. Verifica la URL o que sea un formato .mp4 válido.");
             };
         },
         pub(){
-            const url = pUrlInput.value.trim(); // Obtener valor del input (antes: p-url.value — sintaxis inválida)
+            const url = pUrlInput.value.trim();
             if(!url) {
                 alert("Por favor, ingresa una URL de imagen válida.");
                 return;
             }
             set(ref(db,'tv_vfinal/p'), url);
-            pUrlInput.value = ""; // Limpiar input después de guardar
+            pUrlInput.value = "";
             alert("Publicidad actualizada exitosamente!");
         },
         reset(){
             if(confirm("¿Borrar toda la lista de videos? Esta acción no se puede deshacer.")){
                 remove(ref(db,'tv_vfinal/v'));
                 currentUrl = "";
-                player.source = {type: 'video', sources: []}; // Limpiar reproductor
+                player.source = {type: 'video', sources: []};
                 alert("Lista de videos reseteada exitosamente!");
             }
         }
@@ -179,5 +177,4 @@
 </script>
 
 </body>
-    </html>
-    
+</html>
