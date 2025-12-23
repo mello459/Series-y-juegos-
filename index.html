@@ -3,53 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prueba Reproductor</title>
-    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
+    <title>Reproductor PlayerJS</title>
+
+    <script src="playerjs (1).js" type="text/javascript"></script>
+
     <style>
-        body { background: #000; display: flex; justify-content: center; padding-top: 20px; }
-        #player { width: 90%; max-width: 800px; }
-        .plyr__video-wrapper::before {
-            content: 'Toca el botón de Play para iniciar el video';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: white;
-            font-size: 20px;
-            z-index: 2;
-            background-color: rgba(0, 0, 0, 0.8);
-            padding: 10px;
-            border-radius: 5px;
+        /* Estilos para que el reproductor se vea bien */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        #contenedor_video {
+            width: 90%;
+            max-width: 960px;
+            aspect-ratio: 16 / 9;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
         }
     </style>
 </head>
 <body>
-    <video id="player" playsinline controls muted></video>
 
-    <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
-    <script>
-        // Solo el reproductor y tu video
-        const player = new Plyr('#player');
-        
-        // Cargar tu video DIRECTAMENTE
-        player.source = {
-            type: 'video',
-            sources: [{
-                src: "https://ia600900.us.archive.org/28/items/1.-riesgo-de-vuelo-2025-espanol_202506/Intensa%20Mente%202.mp4",
-                type: 'video/mp4'
-            }]
-        };
+    <div id="contenedor_video"></div>
 
-        // Mensajes para ver qué pasa
-        console.log("Código cargado");
-        player.once('ready', () => {
-            console.log("Video listo para reproducir");
-            // Ya no intentamos dar play automáticamente
-        });
-        player.on('error', (err) => {
-            console.error("Error del reproductor:", err);
-            alert("Error del reproductor: Verifica la consola");
+    <script type="text/javascript">
+        // Inicialización del reproductor
+        var player = new Playerjs({
+            id: "contenedor_video",
+            // REEMPLAZA ESTO: Pon aquí el link de tu video (.mp4 o .m3u8)
+            file: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4", 
+            poster: "https://via.placeholder.com/1280x720.png?text=Cargando+Video", // Imagen de fondo
+            autoplay: 0 // Cambia a 1 si quieres que empiece solo
         });
     </script>
+
 </body>
 </html>
