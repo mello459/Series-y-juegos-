@@ -2,43 +2,39 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reproductor PlayerJS</title>
-
+    <title>Reproductor con Playlist</title>
     <script src="playerjs (1).js" type="text/javascript"></script>
-
     <style>
-        /* Estilos para que el reproductor se vea bien */
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: #000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-
-        #contenedor_video {
-            width: 90%;
-            max-width: 960px;
-            aspect-ratio: 16 / 9;
-            box-shadow: 0 0 30px rgba(0,0,0,0.5);
-        }
+        body { background: #000; display: flex; justify-content: center; padding-top: 50px; }
+        #player { width: 100%; max-width: 850px; height: 480px; }
     </style>
 </head>
 <body>
 
-    <div id="contenedor_video"></div>
+    <div id="player"></div>
 
     <script type="text/javascript">
-        // Inicialización del reproductor
         var player = new Playerjs({
-            id: "contenedor_video",
-            // REEMPLAZA ESTO: Pon aquí el link de tu video (.mp4 o .m3u8)
-            file: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4", 
-            poster: "https://via.placeholder.com/1280x720.png?text=Cargando+Video", // Imagen de fondo
-            autoplay: 0 // Cambia a 1 si quieres que empiece solo
+            id: "player",
+            // AQUÍ ESTÁ EL CAMBIO: Usamos corchetes [] para meter varios videos
+            file: [
+                {
+                    "title": "Video 1",
+                    "file": "URL_VIDEO_1.mp4",
+                    "poster": "PORTADA_1.jpg"
+                },
+                {
+                    "title": "Video 2",
+                    "file": "URL_VIDEO_2.mp4",
+                    "poster": "PORTADA_2.jpg"
+                },
+                {
+                    "title": "Video 3",
+                    "file": "URL_VIDEO_3.mp4",
+                    "poster": "PORTADA_3.jpg"
+                }
+            ],
+            autoplay: 0
         });
     </script>
 
