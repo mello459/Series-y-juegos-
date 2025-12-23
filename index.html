@@ -2,25 +2,16 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reproductor Personalizado</title>
+    <meta name="referrer" content="no-referrer">
+    <title>Reproductor Corregido</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
     <script src="playerjs (1).js" type="text/javascript"></script>
 
     <style>
-        body { 
-            margin: 0; 
-            background-color: #000; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            height: 100vh; 
-        }
-        #reproductor { 
-            width: 100%; 
-            max-width: 900px; 
-            aspect-ratio: 16 / 9; 
-        }
+        body { margin: 0; background: #000; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        #reproductor { width: 100%; max-width: 900px; aspect-ratio: 16 / 9; }
     </style>
 </head>
 <body>
@@ -32,15 +23,14 @@
             id: "reproductor",
             file: [
                 {
-                    "title": "Opción 1 - Solo Latino",
+                    "title": "Opción 1",
                     "file": "https://data-limit-c.solo-latino.com/50315719677371f0804087c7361c0102/331a2b95ce7a4398a10212f9c6a71388-c0ddc79cde6684a9727bce58d4cb6748-sd.m3u8?hdnts=exp=1766510003~acl=/50315719677371f0804087c7361c0102/*~hmac=5bb71918eaf9648da41fe979da82e91df0e20c0cbf766019a07d4c1b39884a08"
                 },
                 {
-                    "title": "Opción 2 - Cuevana",
+                    "title": "Opción 2",
                     "file": "https://vod-limit-res.cuevana.life/403a39f0dce171f0b1a087c7371d0102/28d0e919cd77498884d97fafecfc44f2-microframe-sd.m3u8?hdnts=exp=1766581151~acl=/403a39f0dce171f0b1a087c7371d0102/*~hmac=7559b40ec0d56681071514502bf2d690193197099013a288a52b349bb5dfd480"
                 }
-            ],
-            autoplay: 0
+            ]
         });
     </script>
 
