@@ -8,7 +8,7 @@
     <style>
         body {
             margin: 0;
-            background-color: #000;
+            background-color: #121212;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -19,17 +19,28 @@
 
         .video-container {
             position: relative;
-            width: 80%;
-            max-width: 800px;
+            width: 85%;
+            max-width: 900px;
             overflow: hidden;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7);
         }
 
-        video {
+        /* Previsualización del video en la imagen */
+        video, .video-placeholder {
             width: 100%;
             display: block;
-            background: #000;
+            background: #0a0a0a;
+            height: auto;
+            aspect-ratio: 16/9;
+        }
+
+        .video-placeholder {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5em;
+            color: rgba(255,255,255,0.3);
         }
 
         .controls {
@@ -37,10 +48,10 @@
             bottom: 0;
             left: 0;
             width: 100%;
-            background: linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0.4));
+            background: linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.5));
             display: flex;
             align-items: center;
-            padding: 10px 15px;
+            padding: 12px 20px;
             transition: all 0.3s ease-in-out;
             opacity: 1;
         }
@@ -48,7 +59,7 @@
         .controls.hidden {
             opacity: 0;
             pointer-events: none;
-            transform: translateY(5px);
+            transform: translateY(8px);
         }
 
         .controls button {
@@ -56,27 +67,38 @@
             border: none;
             color: #fff;
             cursor: pointer;
-            font-size: 1.2em;
-            padding: 6px 8px;
-            margin: 0 3px;
-            border-radius: 4px;
-            transition: background-color 0.2s ease;
+            font-size: 1.25em;
+            padding: 8px 10px;
+            margin: 0 4px;
+            border-radius: 6px;
+            transition: background-color 0.2s ease, color 0.2s ease;
         }
 
         .controls button:hover {
-            background-color: rgba(255, 255, 255, 0.15);
-            color: #f0f0f0;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: #f8f8f8;
+        }
+
+        /* Botón de play/pause resaltado (igual que en la imagen) */
+        #playPauseBtn {
+            font-size: 1.6em;
+            padding: 10px 14px;
+            margin: 0 8px;
+            background-color: rgba(255,255,255,0.15);
+        }
+
+        #playPauseBtn:hover {
+            background-color: rgba(255,255,255,0.25);
         }
 
         .controls input[type="range"] {
             -webkit-appearance: none;
             width: 100%;
-            height: 4px;
+            height: 5px;
             background: rgba(255, 255, 255, 0.3);
-            border-radius: 2px;
+            border-radius: 3px;
             outline: none;
             cursor: pointer;
-            margin: 0 10px;
             transition: background-color 0.2s ease;
         }
 
@@ -86,45 +108,47 @@
 
         .controls input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
-            width: 14px;
-            height: 14px;
+            width: 16px;
+            height: 16px;
             background: #fff;
             border-radius: 50%;
-            border: 1px solid rgba(0,0,0,0.2);
+            border: 2px solid rgba(0,0,0,0.1);
             cursor: pointer;
             position: relative;
             top: -5px;
-            transition: transform 0.2s ease;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
 
         .controls input[type="range"]::-webkit-slider-thumb:hover {
-            transform: scale(1.1);
+            transform: scale(1.2);
+            box-shadow: 0 0 8px rgba(255,255,255,0.6);
         }
 
         .timecode {
             color: #eee;
-            font-size: 0.85em;
-            margin: 0 12px;
-            width: 90px;
+            font-size: 0.9em;
+            margin: 0 15px;
+            width: 100px;
             text-align: center;
             user-select: none;
+            font-weight: 500;
         }
 
         .volume-controls {
             display: flex;
             align-items: center;
-            margin-right: 10px;
+            margin-right: 20px;
         }
 
         .volume-controls input[type="range"] {
-            width: 90px;
-            margin: 0 8px;
+            width: 100px;
+            margin: 0 10px;
         }
 
         .playback-controls {
             display: flex;
             align-items: center;
-            margin-right: 15px;
+            margin-right: 25px;
         }
 
         .left-controls {
@@ -136,6 +160,14 @@
         .right-controls {
             display: flex;
             align-items: center;
+            margin-left: 15px;
+        }
+
+        /* Botón de pantalla completa visible y bien dimensionado (igual que en la imagen) */
+        #fullscreenBtn {
+            font-size: 1.3em;
+            padding: 9px 12px;
+            margin-left: 5px;
         }
 
         /* Estilos para pantalla completa */
@@ -151,14 +183,20 @@
             border-radius: 0;
         }
 
+        /* Icono de pantalla completa actualizado */
         .fullscreen-icon {
-            font-size: 1.1em;
+            display: inline-block;
+            transform: scale(1.1);
         }
     </style>
 </head>
 <body>
     <div class="video-container" id="videoContainer">
-        <video id="video" preload="metadata" crossorigin="anonymous">
+        <!-- Placeholder visual para que se vea igual a la imagen antes de cargar el video -->
+        <div class="video-placeholder" id="videoPlaceholder">
+            Video en reproducción
+        </div>
+        <video id="video" preload="metadata" crossorigin="anonymous" style="display: none;">
             <source src="REEMPLAZAR_VIDEO_MP4.mp4" type="video/mp4">
             <source src="REEMPLAZAR_VIDEO_M3U8.m3u8" type="application/x-mpegURL">
             Tu navegador no soporta el video.
@@ -170,7 +208,7 @@
                     <button id="rewind15Btn" title="Retroceder 15s">
                         <i class="fas fa-backward"></i> 15
                     </button>
-                    <button id="playPauseBtn" title="Reproducir/Pausar" style="font-size: 1.4em;">
+                    <button id="playPauseBtn" title="Reproducir/Pausar">
                         <i class="fas fa-play"></i>
                     </button>
                     <button id="forward15Btn" title="Adelantar 15s">
@@ -192,7 +230,7 @@
 
             <div class="right-controls">
                 <button id="fullscreenBtn" title="Pantalla completa">
-                    <i class="fas fa-expand fullscreen-icon"></i>
+                    <i class="fas fa-expand-arrows-alt fullscreen-icon"></i>
                 </button>
             </div>
         </div>
@@ -200,6 +238,7 @@
 
     <script>
         const video = document.getElementById('video');
+        const videoPlaceholder = document.getElementById('videoPlaceholder');
         const videoContainer = document.getElementById('videoContainer');
         const controls = document.getElementById('controls');
         const playPauseBtn = document.getElementById('playPauseBtn');
@@ -224,12 +263,14 @@
             return `${m}:${(s < 10 ? '0' : '') + s}`;
         }
 
-        // Reproducir/Pausar
+        // Reproducir/Pausar (con cambio de placeholder a video)
         function togglePlay() {
             if (isPlaying) {
                 video.pause();
                 playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
             } else {
+                videoPlaceholder.style.display = 'none';
+                video.style.display = 'block';
                 video.play();
                 playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
             }
@@ -238,6 +279,7 @@
 
         // Avanzar/Retroceder 15 segundos
         function skipSeconds(seconds) {
+            if (isNaN(video.duration)) return;
             video.currentTime = Math.max(0, Math.min(video.duration, video.currentTime + seconds));
         }
 
@@ -248,22 +290,29 @@
 
             if (isMuted) {
                 volumeIcon.className = 'fas fa-volume-mute';
-            } else {
+            } else if (video.volume > 0.5) {
                 volumeIcon.className = 'fas fa-volume-up';
+            } else {
+                volumeIcon.className = 'fas fa-volume-down';
             }
         }
 
-        // Actualizar volumen
+        // Actualizar volumen y icono
         function updateVolume() {
             video.volume = volume.value;
+            if (!isMuted) {
+                volumeIcon.className = video.volume > 0.5 ? 'fas fa-volume-up' : 'fas fa-volume-down';
+            }
         }
 
         // Actualizar barra de progreso y tiempo
         function handleProgress() {
             const duration = video.duration;
             const currentTime = video.currentTime;
-            progress.value = (currentTime / duration) * 100;
-            timecode.textContent = `${formatTime(currentTime)} / ${formatTime(duration)}`;
+            if (!isNaN(duration)) {
+                progress.value = (currentTime / duration) * 100;
+                timecode.textContent = `${formatTime(currentTime)} / ${formatTime(duration)}`;
+            }
         }
 
         // Establecer posición del video
@@ -272,20 +321,22 @@
             video.currentTime = (progress.value * video.duration) / 100;
         }
 
-        // Alternar pantalla completa
+        // Alternar pantalla completa (y actualizar icono)
         function toggleFullscreen() {
             if (!document.fullscreenElement) {
                 videoContainer.requestFullscreen().catch(err => {
                     alert(`Error al activar pantalla completa: ${err.message}`);
                 });
+                fullscreenBtn.innerHTML = '<i class="fas fa-compress-arrows-alt fullscreen-icon"></i>';
             } else {
                 document.exitFullscreen();
+                fullscreenBtn.innerHTML = '<i class="fas fa-expand-arrows-alt fullscreen-icon"></i>';
             }
         }
 
         // Ocultar/Mostrar controles
         function hideControls() {
-            controls.classList.add('hidden');
+            if (isPlaying) controls.classList.add('hidden');
         }
 
         function showControls() {
@@ -295,7 +346,7 @@
         function resetTimeout() {
             clearTimeout(timeout);
             showControls();
-            timeout = setTimeout(hideControls, 3000);
+            timeout = setTimeout(hideControls, 3500);
         }
 
         // Eventos
@@ -308,9 +359,17 @@
             isPlaying = true;
             playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
         });
+
         video.addEventListener('pause', () => {
             isPlaying = false;
             playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+        });
+
+        // Actualizar icono de pantalla completa al salir
+        document.addEventListener('fullscreenchange', () => {
+            if (!document.fullscreenElement) {
+                fullscreenBtn.innerHTML = '<i class="fas fa-expand-arrows-alt fullscreen-icon"></i>';
+            }
         });
 
         progress.addEventListener('input', setProgress);
@@ -324,8 +383,10 @@
         videoContainer.addEventListener('mousemove', resetTimeout);
         videoContainer.addEventListener('click', resetTimeout);
 
-        // Ocultar controles inicialmente
-        timeout = setTimeout(hideControls, 3000);
+        // Ocultar controles inicialmente (solo si está reproduciendo)
+        timeout = setTimeout(() => {
+            if (isPlaying) hideControls();
+        }, 3500);
     </script>
 </body>
     </html>
