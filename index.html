@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+    <!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -15,7 +15,7 @@ html, body {
     background: #000;
 }
 
-/* Contenedor RESPONSIVE REAL */
+/* Contenedor 16:9 estable */
 .player-wrapper {
     position: relative;
     width: 100%;
@@ -23,7 +23,6 @@ html, body {
     background: #000;
 }
 
-/* Relación 16:9 real */
 .player-wrapper::before {
     content: "";
     display: block;
@@ -32,10 +31,7 @@ html, body {
 
 #player {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    inset: 0;
 }
 </style>
 </head>
@@ -58,12 +54,12 @@ var player = new Playerjs({
     mute: 0,
     preload: "auto",
 
-    /* MUY IMPORTANTE */
     aspectratio: "16:9",
-    stretching: "exactfit",
+    stretching: "uniform",
 
-    /* Evita fullscreen forzado en móvil */
-    mobileFullscreen: false,
+    /* 🔑 CLAVE DEL ARREGLO */
+    fullscreen: false,          // desactiva fullscreen interno
+    mobileFullscreen: false,    // evita salto automático en Android
 
     skin: "classic",
     volume: 80
