@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>Series y juegos TV</title>
+  <title>Reproductor M3U8</title>
   <style>
     body {
       margin: 0;
@@ -21,16 +21,7 @@
       border-radius: 16px;
       overflow: hidden;
       box-shadow: 0 0 40px rgba(0,0,0,0.6);
-      border-top: 2px solid #ff7b00; /* línea muy fina anaranjada */
-    }
-    header {
-      text-align: center;
-      font-size: 1.4rem;
-      font-weight: 600;
-      padding: 12px;
-      color: #ff7b00;
-      background: #111;
-      border-bottom: 1px solid rgba(255,123,0,0.3);
+      border-top: 2px solid #ff7b00; /* línea anaranjada */
     }
     video {
       width: 100%;
@@ -48,6 +39,11 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
+      transition: opacity 0.4s ease;
+    }
+    .overlay.hidden {
+      opacity: 0;
+      pointer-events: none;
     }
     .controls {
       display: flex;
@@ -74,14 +70,14 @@
   </style>
 </head>
 <body>
-  <div class="container">
-    <header>Series y juegos TV</header>
+  <div class="container" id="player">
     <video id="video" playsinline></video>
-    <div class="overlay">
+    <div class="overlay" id="overlay">
       <div class="controls">
         <button class="btn" id="play">▶</button>
         <button class="btn" id="pause">⏸</button>
         <button class="btn" id="stop">⏹</button>
+        <button class="btn" id="fullscreen">⛶</button>
       </div>
       <div class="time" id="timestamp">0:00 / 0:00</div>
     </div>
@@ -93,9 +89,14 @@
     const playBtn = document.getElementById('play');
     const pauseBtn = document.getElementById('pause');
     const stopBtn = document.getElementById('stop');
+    const fullscreenBtn = document.getElementById('fullscreen');
     const timestamp = document.getElementById('timestamp');
+    const overlay = document.getElementById('overlay');
+    const player = document.getElementById('player');
 
     const m3u8Url = "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8"; // Cambia por tu enlace
+
+    let hideTimeout;
 
     function formatTime(s) {
       const m = Math.floor(s / 60);
@@ -115,15 +116,11 @@
         video.play();
         return;
       }
-
       if (Hls.isSupported()) {
         const hls = new Hls();
         hls.loadSource(url);
         hls.attachMedia(video);
         hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
-        hls.on(Hls.Events.ERROR, (event, data) => {
-          console.warn("HLS error:", data?.details || data);
-        });
       } else {
         alert("Tu navegador no soporta HLS ni hls.js.");
       }
@@ -135,11 +132,30 @@
       video.pause();
       video.currentTime = 0;
     };
+    fullscreenBtn.onclick = () => {
+      if (!document.fullscreenElement) {
+        player.requestFullscreen();
+      } else {
+        document.exitFullscreen();
+      }
+    };
 
     video.addEventListener('timeupdate', updateTime);
     video.addEventListener('loadedmetadata', updateTime);
+    video.addEventListener('ended', () => overlay.classList.add('hidden'));
+
+    // Ocultar controles tras unos segundos sin interacción
+    function showControls() {
+      overlay.classList.remove('hidden');
+      clearTimeout(hideTimeout);
+      hideTimeout = setTimeout(() => overlay.classList.add('hidden'), 3000);
+    }
+
+    player.addEventListener('mousemove', showControls);
+    player.addEventListener('click', showControls);
+    video.addEventListener('play', showControls);
 
     loadHLS(m3u8Url);
   </script>
 </body>
-</html>
+          </html>
