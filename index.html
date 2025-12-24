@@ -1,165 +1,282 @@
-
-
-```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Reproductor MP4 y M3U8</title>
-<style>
-  body {
-    margin: 0;
-    background-color: black;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-  }
-  .video-container {
-    position: relative;
-    width: 640px;
-    max-width: 100%;
-    font-family: Arial, sans-serif;
-    user-select: none;
-  }
-  video {
-    width: 100%;
-    display: block;
-    background: black;
-  }
-  .controls {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: rgba(0,0,0,0.85);
-    display: flex;
-    align-items: center;
-    padding: 5px 10px;
-    gap: 10px;
-    transition: opacity 0.5s ease;
-  }
-  .controls.hidden {
-    opacity: 0;
-    pointer-events: none;
-  }
-  .controls button, .controls input[type="range"] {
-    background: none;
-    border: none;
-    color: white;
-    cursor: pointer;
-  }
-  button {
-    font-size: 18px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .icon {
-    width: 20px;
-    height: 20px;
-    fill: white;
-  }
-  input[type="range"] {
-    -webkit-appearance: none;
-    width: 100%;
-    max-width: 300px;
-  }
-  input[type="range"]::-webkit-slider-runnable-track {
-    height: 5px;
-    background: #555;
-    border-radius: 3px;
-  }
-  input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 14px;
-    height: 14px;
-    background: white;
-    border-radius: 50%;
-    margin-top: -5px;
-    cursor: pointer;
-  }
-  input[type="range"]:focus {
-    outline: none;
-  }
-  .timecode {
-    color: white;
-    font-size: 12px;
-    min-width: 50px;
-    text-align: center;
-    user-select: none;
-  }
-  .skip-btn {
-    font-size: 12px;
-    white-space: nowrap;
-  }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reproductor MP4 y M3U8</title>
+    <style>
+        body {
+            margin: 0;
+            background-color: black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+        }
+
+        .video-container {
+            position: relative;
+            width: 640px;
+            max-width: 100%;
+            user-select: none;
+        }
+
+        video {
+            width: 100%;
+            display: block;
+            background: black;
+        }
+
+        .controls {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            align-items: center;
+            padding: 5px 10px;
+            gap: 10px;
+            transition: opacity 0.5s ease;
+        }
+
+        .controls.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .controls button,
+        .controls input[type="range"] {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+        }
+
+        button {
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon {
+            width: 20px;
+            height: 20px;
+            fill: white;
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        input[type="range"]::-webkit-slider-runnable-track {
+            height: 5px;
+            background: #555;
+            border-radius: 3px;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 14px;
+            height: 14px;
+            background: white;
+            border-radius: 50%;
+            margin-top: -5px;
+            cursor: pointer;
+        }
+
+        input[type="range"]:focus {
+            outline: none;
+        }
+
+        .timecode {
+            color: white;
+            font-size: 12px;
+            min-width: 50px;
+            text-align: center;
+            user-select: none;
+        }
+
+        .skip-btn {
+            font-size: 12px;
+            white-space: nowrap;
+        }
+    </style>
 </head>
 <body>
+    <div class="video-container" id="videoContainer">
+        <video id="video" preload="metadata" crossorigin="anonymous" controlsList="nodownload">
+            <source src="REEMPLAZAR_VIDEO_MP4.mp4" type="video/mp4">
+            <source src="REEMPLAZAR_VIDEO_M3U8.m3u8" type="application/x-mpegURL">
+            Tu navegador no soporta el video.
+        </video>
 
-<div class="video-container" id="videoContainer">
-  <!-- Cambia aquí la URL del video MP4 o M3U8 -->
-  <video id="video" preload="metadata" crossorigin="anonymous" controlsList="nodownload">
-    <!-- Fuente MP4 -->
-    <source src="REEMPLAZAR_VIDEO_MP4.mp4" type="video/mp4" />
-    <!-- Fuente M3U8 (HLS) -->
-    <source src="REEMPLAZAR_VIDEO_M3U8.m3u8" type="application/x-mpegURL" />
-    Tu navegador no soporta el video.
-  </video>
+        <div id="controls" class="controls">
+            <button id="menuBtn" title="Menú" aria-label="Menú">
+                <svg class="icon" viewBox="0 0 24 24">
+                    <rect y="4" width="24" height="2"></rect>
+                    <rect y="11" width="24" height="2"></rect>
+                    <rect y="18" width="24" height="2"></rect>
+                </svg>
+            </button>
 
-  <div id="controls" class="controls">
-    <button id="menuBtn" title="Menú" aria-label="Menú">
-      <svg class="icon" viewBox="0 0 24 24"><rect y="4" width="24" height="2"/><rect y="11" width="24" height="2"/><rect y="18" width="24" height="2"/></svg>
-    </button>
+            <button id="volumeBtn" title="Volumen" aria-label="Volumen">
+                <svg id="volumeIcon" class="icon" viewBox="0 0 24 24">
+                    <path d="M3 9v6h4l5 5V4L7 9H3z"></path>
+                    <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v8.06c1.48-.74 2.5-2.26 2.5-4.03z"></path>
+                </svg>
+            </button>
 
-    <button id="volumeBtn" title="Volumen" aria-label="Volumen">
-      <svg id="volumeIcon" class="icon" viewBox="0 0 24 24">
-        <path d="M3 9v6h4l5 5V4L7 9H3z"/>
-        <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v8.06c1.48-.74 2.5-2.26 2.5-4.03z"/>
-      </svg>
-    </button>
+            <input type="range" id="volume" min="0" max="1" value="1" step="0.01" aria-label="Control de volumen">
 
-    <input type="range" id="progress" min="0" max="100" value="0" step="0.1" aria-label="Barra de progreso">
+            <input type="range" id="progress" min="0" max="100" value="0" step="0.1" aria-label="Barra de progreso">
 
-    <div id="timecode" class="timecode">0:00 / 0:00</div>
+            <div id="timecode" class="timecode">0:00 / 0:00</div>
 
-    <button id="rewind15" class="skip-btn" title="Retroceder 15 segundos" aria-label="Retroceder 15 segundos">⏪ 15</button>
+            <button id="rewind15" class="skip-btn" title="Retroceder 15 segundos" aria-label="Retroceder 15 segundos">⏪ 15</button>
 
-    <button id="playPause" title="Reproducir / Pausar" aria-label="Reproducir / Pausar">▶</button>
+            <button id="playPause" title="Reproducir / Pausar" aria-label="Reproducir / Pausar">▶</button>
 
-    <button id="forward15" class="skip-btn" title="Adelantar 15 segundos" aria-label="Adelantar 15 segundos">15 ⏩</button>
+            <button id="forward15" class="skip-btn" title="Adelantar 15 segundos" aria-label="Adelantar 15 segundos">15 ⏩</button>
 
-    <button id="settingsBtn" title="Configuración" aria-label="Configuración">
-      <svg class="icon" viewBox="0 0 24 24">
-        <path d="M19.14,12.94a7.14,7.14,0,0,0,0-1.88l2.11-1.65a.5.5,0,0,0,.12-.63l-2-3.46a.5.5,0,0,0-.6-.22l-2.49,1a7.35,7.35,0,0,0-1.62-.94L14,4.13a.5.5,0,0,0-.49-.38H10.53a.5.5,0,0,0-.49.38L9.46,6.92a7.35,7.35,0,0,0-1.62.94l-2.49-1a.5.5,0,0,0-.6.22l-2,3.46a.5.5,0,0,0,.12.63L4.86,11.06a7.14,7.14,0,0,0,0,1.88L2.75,14.59a.5.5,0,0,0-.12.63l2,3.46a.5.5,0,0,0,.6.22l2.49-1a7.35,7.35,0,0,0,1.62.94l.58,2.79a.5.5,0,0,0,.49.38h3a.5.5,0,0,0,.49-.38l.58-2.79a7.35,7.35,0,0,0,1.62-.94l2.49,1a.5.5,0,0,0,.6-.22l2-3.46a.5.5,0,0,0-.12-.63ZM12,15.5A3.5,3.5,0,1,1,15.5,12,3.5,3.5,0,0,1,12,15.5Z"/>
-      </svg>
-    </button>
+            <button id="settingsBtn" title="Configuración" aria-label="Configuración">
+                <svg class="icon" viewBox="0 0 24 24">
+                    <path d="M19.14,12.94a7.14,7.14,0,0,0,0-1.88l2.11-1.65a.5.5,0,0,0,.12-.63l-2-3.46a.5.5,0,0,0-.6-.22l-2.49,1a7.35,7.35,0,0,0-1.62-.94L14,4.13a.5.5,0,0,0-.49-.38H10.53a.5.5,0,0,0-.49.38L9.46,6.92a7.35,7.35,0,0,0-1.62.94l-2.49-1a.5.5,0,0,0-.6.22l-2,3.46a.5.5,0,0,0,.12.63L4.86,11.06a7.14,7.14,0,0,0,0,1.88L2.75,14.59a.5.5,0,0,0-.12.63l2,3.46a.5.5,0,0,0,.6.22l2.49-1a7.35,7.35,0,0,0,1.62.94l.58,2.79a.5.5,0,0,0,.49.38h3a.5.5,0,0,0,.49-.38l.58-2.79a7.35,7.35,0,0,0,1.62-.94l2.49,1a.5.5,0,0,0,.6-.22l2-3.46a.5.5,0,0,0-.12-.63ZM12,15.5A3.5,3.5,0,1,1,15.5,12,3.5,3.5,0,0,1,12,15.5Z"></path>
+                </svg>
+            </button>
 
-    <button id="fullscreenBtn" title="Pantalla completa" aria-label="Pantalla completa">
-      <svg class="icon" viewBox="0 0 24 24">
-        <path d="M7 14H5v5h5v-2H7v-3zm10-9h-5v2h3v3h2V5zm-10 0v2h3v3h2V5h-5zm10 10h-2v3h-3v2h5v-5z"/>
-      </svg>
-    </button>
-  </div>
-</div>
+            <button id="fullscreenBtn" title="Pantalla completa" aria-label="Pantalla completa">
+                <svg class="icon" viewBox="0 0 24 24">
+                    <path d="M7 14H5v5h5v-2H7v-3zm10-9h-5v2h3v3h2V5zm-10 0v2h3v3h2V5h-5zm10 10h-2v3h-3v2h5v-5z"></path>
+                </svg>
+            </button>
+        </div>
+    </div>
 
-<script>
-  const video = document.getElementById('video');
-  const controls = document.getElementById('controls');
-  const playPauseBtn = document.getElementById('playPause');
-  const rewind15Btn = document.getElementById('rewind15');
-  const forward15Btn = document.getElementById('forward15');
-  const progress = document.getElementById('progress');
-  const timecode = document.getElementById('timecode');
-  const fullscreenBtn = document.getElementById('fullscreenBtn');
-  const volumeBtn = document.getElementById('volumeBtn');
-  const volumeIcon = document.getElementById('volumeIcon');
+    <script>
+        const video = document.getElementById('video');
+        const controls = document.getElementById('controls');
+        const playPauseBtn = document.getElementById('playPause');
+        const rewind15Btn = document.getElementById('rewind15');
+        const forward15Btn = document.getElementById('forward15');
+        const progress = document.getElementById('progress');
+        const timecode = document.getElementById('timecode');
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+        const volumeBtn = document.getElementById('volumeBtn');
+        const volumeIcon = document.getElementById('volumeIcon');
+        const volume = document.getElementById('volume');
 
-  function formatTime(seconds) {
-    const m = Math.floor(seconds / 60);
-    const s = Math.floor(seconds % 60);
-    return m + ':' + (s < 10 ? '0' + s : s);
-  }
+        let isPlaying = false;
+        let isMuted = false;
+        let timeout;
 
-  // Actualiza la barra
+        function formatTime(seconds) {
+            const m = Math.floor(seconds / 60);
+            const s = Math.floor(seconds % 60);
+            return m + ':' + (s < 10 ? '0' + s : s);
+        }
+
+        function togglePlay() {
+            if (isPlaying) {
+                video.pause();
+                playPauseBtn.textContent = '▶';
+            } else {
+                video.play();
+                playPauseBtn.textContent = '⏸';
+            }
+            isPlaying = !isPlaying;
+        }
+
+        function skip(seconds) {
+            video.currentTime += seconds;
+        }
+
+        function updateProgress() {
+            const value = (video.currentTime / video.duration) * 100;
+            progress.value = value;
+        }
+
+        function handleProgress() {
+            const duration = video.duration;
+            const currentTime = video.currentTime;
+            progress.value = (currentTime / duration) * 100;
+            timecode.textContent = `${formatTime(currentTime)} / ${formatTime(duration)}`;
+        }
+
+        function setProgress() {
+            video.currentTime = (progress.value * video.duration) / 100;
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                videoContainer.requestFullscreen().catch(err => {
+                    alert(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        function toggleMute() {
+            video.muted = !isMuted;
+            isMuted = !isMuted;
+
+            if (isMuted) {
+                volumeIcon.innerHTML = '<path d="M3 9v6h4l5 5V4L7 9H3z"/><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v8.06c1.48-.74 2.5-2.26 2.5-4.03z"/>';
+            } else {
+                volumeIcon.innerHTML = '<path d="M3 9v6h4l5 5V4L7 9H3z"/>';
+            }
+        }
+
+        function updateVolume() {
+            video.volume = volume.value;
+        }
+
+        function hideControls() {
+            controls.classList.add('hidden');
+        }
+
+        function showControls() {
+            controls.classList.remove('hidden');
+        }
+
+        function resetTimeout() {
+            clearTimeout(timeout);
+            showControls();
+            timeout = setTimeout(hideControls, 3000);
+        }
+
+        video.addEventListener('loadedmetadata', () => {
+            timecode.textContent = `0:00 / ${formatTime(video.duration)}`;
+        });
+
+        video.addEventListener('timeupdate', handleProgress);
+        video.addEventListener('play', () => {
+            isPlaying = true;
+            playPauseBtn.textContent = '⏸';
+        });
+        video.addEventListener('pause', () => {
+            isPlaying = false;
+            playPauseBtn.textContent = '▶';
+        });
+
+        progress.addEventListener('input', setProgress);
+        playPauseBtn.addEventListener('click', togglePlay);
+        rewind15Btn.addEventListener('click', () => skip(-15));
+        forward15Btn.addEventListener('click', () => skip(15));
+        fullscreenBtn.addEventListener('click', toggleFullscreen);
+        volumeBtn.addEventListener('click', toggleMute);
+        volume.addEventListener('input', updateVolume);
+
+        document.addEventListener('mousemove', resetTimeout);
+        document.addEventListener('click', resetTimeout);
+
+        // Ocultar los controles inicialmente después de un tiempo
+        timeout = setTimeout(hideControls, 3000);
+    </script>
+</body>
+</html>
