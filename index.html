@@ -1,120 +1,79 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reproductor a un Toque</title>
+<meta charset="UTF-8">
+<title>Reproductor Universal</title>
 
-    <script src="playerjs.js"></script>
+<!-- Meta críticos para móviles y TV -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
 
-    <style>
-        body { 
-            margin: 0; background: #000; color: white; 
-            display: flex; flex-direction: column; align-items: center; 
-            justify-content: center; height: 100vh; font-family: sans-serif;
-        }
+<style>
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    overflow: hidden;
+}
 
-        /* Dimensiones para que la interfaz sea visible */
-        #player-wrapper { 
-            width: 100%; 
-            max-width: 854px; 
-            aspect-ratio: 16 / 9; 
-            background: #111;
-            box-shadow: 0 0 30px rgba(0,0,0,0.7);
-        }
+#player {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+}
 
-        .info { margin-top: 15px; color: #777; font-size: 13px; }
-    </style>
+/* Mejora interacción en TV */
+* {
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+}
+</style>
 </head>
 <body>
 
-    <div id="player-wrapper">
-        <div id="reproductor"></div>
-    </div>
+<div id="player"></div>
 
-    <p class="info">Haz clic en el play para iniciar la reproducción</p>
+<!-- PlayerJS -->
+<script src="playerjs.js"></script>
 
-    <script>
-        window.onload = function() {
-            try {
-                var player = new Playerjs({
-                    id: "reproductor",
-                    // URL de prueba garantizada que funciona con tu librería
-                    file: "https://cph-p2p-msl.akamaized.net/hls/live/2000341/test/master.m3u8",
-                    
-                    // CONFIGURACIÓN CLAVE: 0 significa que NO arranca solo
-                    autoplay: 0, 
-                    
-                    poster: "https://playerjs.com/img/poster.png",
-                    lang: "es"
-                });
+<script>
+var player = new Playerjs({
+    id: "player",
 
-                console.log("Configuración cargada: Autoplay desactivado.");
-                
-            } catch (e) {
-                console.error("Error al inicializar:", e);
-            }
-        };
-    </script>
-</body>
-</html>
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reproductor a un Toque</title>
+    /* SIN URL */
+    file: "",
 
-    <script src="playerjs.js"></script>
+    /* Compatibilidad */
+    controls: 1,
+    autoplay: 0,
+    mute: 0,
+    preload: "auto",
 
-    <style>
-        body { 
-            margin: 0; background: #000; color: white; 
-            display: flex; flex-direction: column; align-items: center; 
-            justify-content: center; height: 100vh; font-family: sans-serif;
-        }
+    /* Pantalla */
+    aspectratio: "16:9",
+    stretching: "uniform",
 
-        /* Dimensiones para que la interfaz sea visible */
-        #player-wrapper { 
-            width: 100%; 
-            max-width: 854px; 
-            aspect-ratio: 16 / 9; 
-            background: #111;
-            box-shadow: 0 0 30px rgba(0,0,0,0.7);
-        }
+    /* Skin estable para TV */
+    skin: "classic",
 
-        .info { margin-top: 15px; color: #777; font-size: 13px; }
-    </style>
-</head>
-<body>
+    /* Audio */
+    volume: 80,
 
-    <div id="player-wrapper">
-        <div id="reproductor"></div>
-    </div>
+    /* Optimización HLS */
+    hlsconfig: {
+        maxBufferLength: 30,
+        maxMaxBufferLength: 60,
+        enableWorker: true,
+        lowLatencyMode: true
+    }
+});
+</script>
 
-    <p class="info">Haz clic en el play para iniciar la reproducción</p>
-
-    <script>
-        window.onload = function() {
-            try {
-                var player = new Playerjs({
-                    id: "reproductor",
-                    // URL de prueba garantizada que funciona con tu librería
-                    file: "https://cph-p2p-msl.akamaized.net/hls/live/2000341/test/master.m3u8",
-                    
-                    // CONFIGURACIÓN CLAVE: 0 significa que NO arranca solo
-                    autoplay: 0, 
-                    
-                    poster: "https://playerjs.com/img/poster.png",
-                    lang: "es"
-                });
-
-                console.log("Configuración cargada: Autoplay desactivado.");
-                
-            } catch (e) {
-                console.error("Error al inicializar:", e);
-            }
-        };
-    </script>
 </body>
 </html>
