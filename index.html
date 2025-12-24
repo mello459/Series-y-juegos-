@@ -2,38 +2,30 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reproductor Playerjs</title>
     <script src="playerjs (1).js"></script>
-    
-    <style>
-        /* Estilo básico para el contenedor del reproductor */
-        #mi_reproductor {
-            width: 100%;
-            max-width: 800px;
-            height: 450px;
-            margin: 0 auto;
-            background-color: #000;
-        }
-    </style>
 </head>
 <body>
 
-    <h2 style="text-align:center;">Mi Reproductor Personalizado</h2>
-
-    <div id="mi_reproductor"></div>
+    <div id="player" style="width:640px; height:360px;"></div>
 
     <script>
-        // 3. Configuración e inicialización del reproductor
-        // Según el archivo, se utiliza la clase o función global (por ejemplo, Playerjs o similar)
-        // Nota: El archivo usa un empaquetador "eval", la inicialización estándar suele ser así:
-        
+        // Configuración del reproductor basada en los parámetros internos del archivo
         var player = new Playerjs({
-            id: "mi_reproductor", // El ID del div contenedor
-            file: "https://tu-servidor.com/video.mp4", // URL del video o audio
-            poster: "https://tu-servidor.com/imagen.jpg", // Imagen de portada
-            title: "Mi Video de Prueba",
-            autoplay: false
+            id: "player",                      // ID del contenedor HTML
+            file: "URL_DE_TU_VIDEO.mp4",       // Ruta del contenido multimedia
+            poster: "URL_DE_IMAGEN.jpg",       // Imagen de portada (opcional)
+            autoplay: false,                   // Inicio automático
+            defaultConfig: {
+                latency: true,                 // Activa el control de latencia
+                liveSyncPosition: true,        // Sincronización en vivo
+                pathwayPriority: "high"        // Prioridad de rutas de streaming
+            }
+        });
+
+        // Ejemplo de manejo de eventos según la API del archivo
+        player.on("ready", function() {
+            console.log("El reproductor Playerjs v21.1.2 está listo.");
         });
     </script>
 
