@@ -2,51 +2,48 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Página con reproductor estable</title>
+<title>Reproductor estable</title>
 
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-/* ===== RESET BÁSICO ===== */
+/* ===== RESET ===== */
 html, body {
     margin: 0;
     padding: 0;
     background: #000;
-    height: 100svh;          /* viewport estable en móvil */
-    overflow: hidden;        /* evita saltos al rotar */
+    width: 100%;
 }
 
-/* ===== CONTENEDOR GENERAL DE LA PÁGINA ===== */
+/* ===== PÁGINA ===== */
 .page {
-    height: 100svh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    width: 100%;
 }
 
-/* ===== BLOQUEA EL TAMAÑO DEL VIDEO ===== */
+/* ===== CONTENEDOR DEL VIDEO (NO SE EXPANDE SOLO) ===== */
 .video-lock {
     position: relative;
     width: 100%;
-    max-width: 1280px;       /* límite en PC */
+    max-width: 1280px;   /* límite en PC / TV */
+    margin: 0 auto;      /* centra horizontal */
     background: #000;
 }
 
-/* Mantiene 16:9 y evita crecimiento automático */
+/* Mantiene proporción 16:9 SIN CORTAR */
 .video-lock::before {
     content: "";
     display: block;
-    padding-top: 56.25%;     /* 16:9 */
+    padding-top: 56.25%;
 }
 
-/* El reproductor se ajusta al contenedor, no al viewport */
-.video-lock > #player {
+/* El reproductor se ajusta al marco */
+#player {
     position: absolute;
     inset: 0;
 }
 </style>
 </head>
+
 <body>
 
 <div class="page">
@@ -55,7 +52,7 @@ html, body {
     </div>
 </div>
 
-<!-- TU PLAYERJS, SIN CAMBIOS -->
+<!-- PlayerJS -->
 <script src="playerjs.js"></script>
 
 <script>
