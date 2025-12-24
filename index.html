@@ -1,161 +1,72 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>Reproductor M3U8</title>
-  <style>
-    body {
-      margin: 0;
-      background: #0d0d0f;
-      color: #fff;
-      font-family: 'Segoe UI', sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-    .container {
-      width: min(90vw, 800px);
-      position: relative;
-      border-radius: 16px;
-      overflow: hidden;
-      box-shadow: 0 0 40px rgba(0,0,0,0.6);
-      border-top: 2px solid #ff7b00; /* línea anaranjada */
-    }
-    video {
-      width: 100%;
-      height: auto;
-      background: #000;
-      display: block;
-    }
-    .overlay {
-      position: absolute;
-      bottom: 0;
-      width: 100%;
-      background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
-      padding: 12px 16px;
-      box-sizing: border-box;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      transition: opacity 0.4s ease;
-    }
-    .overlay.hidden {
-      opacity: 0;
-      pointer-events: none;
-    }
-    .controls {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .btn {
-      background: rgba(255,255,255,0.1);
-      border: none;
-      color: #fff;
-      padding: 8px 12px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 600;
-      transition: background 0.2s;
-    }
-    .btn:hover {
-      background: rgba(255,123,0,0.4);
-    }
-    .time {
-      font-size: 14px;
-      color: #ccc;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reproductor M3U8 - Playerjs</title>
+
+    <script src="playerjs.js"></script>
+
+    <style>
+        body { 
+            margin: 0; 
+            padding: 0; 
+            background: #000; 
+            display: flex; 
+            flex-direction: column;
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            color: #fff;
+            font-family: Arial, sans-serif;
+        }
+        #video-container { 
+            width: 90%; 
+            max-width: 960px; 
+            aspect-ratio: 16 / 9; 
+            background: #111;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .status { margin-top: 15px; font-size: 14px; color: #00ff00; }
+    </style>
 </head>
 <body>
-  <div class="container" id="player">
-    <video id="video" playsinline></video>
-    <div class="overlay" id="overlay">
-      <div class="controls">
-        <button class="btn" id="play">▶</button>
-        <button class="btn" id="pause">⏸</button>
-        <button class="btn" id="stop">⏹</button>
-        <button class="btn" id="fullscreen">⛶</button>
-      </div>
-      <div class="time" id="timestamp">0:00 / 0:00</div>
+
+    <div id="video-container">
+        <div id="player"></div>
     </div>
-  </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-  <script>
-    const video = document.getElementById('video');
-    const playBtn = document.getElementById('play');
-    const pauseBtn = document.getElementById('pause');
-    const stopBtn = document.getElementById('stop');
-    const fullscreenBtn = document.getElementById('fullscreen');
-    const timestamp = document.getElementById('timestamp');
-    const overlay = document.getElementById('overlay');
-    const player = document.getElementById('player');
+    <div class="status" id="log">Estado: Cargando playerjs.js...</div>
 
-    const m3u8Url = "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8"; // Cambia por tu enlace
+    <script>
+        // 2. Usamos el evento 'load' para asegurar que el JS se leyó por completo
+        window.addEventListener('load', function() {
+            try {
+                // Verificamos si la clase Playerjs existe en la memoria
+                if (typeof Playerjs !== 'undefined') {
+                    
+                    var player = new Playerjs({
+                        id: "player",
+                        // URL DE PRUEBA: Streaming en vivo de NASA TV
+                        file: "https://ntv1.akamaized.net/hls/live/2014049/NASA-NTV1-HLS/master.m3u8",
+                        poster: "https://www.nasa.gov/wp-content/uploads/2023/07/nasa-logo.pjpeg",
+                        autoplay: 0,
+                        lang: "es" // Configuramos el idioma analizado en el JS
+                    });
 
-    let hideTimeout;
-
-    function formatTime(s) {
-      const m = Math.floor(s / 60);
-      const sec = Math.floor(s % 60).toString().padStart(2, '0');
-      return `${m}:${sec}`;
-    }
-
-    function updateTime() {
-      const cur = video.currentTime || 0;
-      const dur = video.duration || 0;
-      timestamp.textContent = `${formatTime(cur)} / ${formatTime(dur)}`;
-    }
-
-    function loadHLS(url) {
-      if (video.canPlayType('application/vnd.apple.mpegurl')) {
-        video.src = url;
-        video.play();
-        return;
-      }
-      if (Hls.isSupported()) {
-        const hls = new Hls();
-        hls.loadSource(url);
-        hls.attachMedia(video);
-        hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
-      } else {
-        alert("Tu navegador no soporta HLS ni hls.js.");
-      }
-    }
-
-    playBtn.onclick = () => video.play();
-    pauseBtn.onclick = () => video.pause();
-    stopBtn.onclick = () => {
-      video.pause();
-      video.currentTime = 0;
-    };
-    fullscreenBtn.onclick = () => {
-      if (!document.fullscreenElement) {
-        player.requestFullscreen();
-      } else {
-        document.exitFullscreen();
-      }
-    };
-
-    video.addEventListener('timeupdate', updateTime);
-    video.addEventListener('loadedmetadata', updateTime);
-    video.addEventListener('ended', () => overlay.classList.add('hidden'));
-
-    // Ocultar controles tras unos segundos sin interacción
-    function showControls() {
-      overlay.classList.remove('hidden');
-      clearTimeout(hideTimeout);
-      hideTimeout = setTimeout(() => overlay.classList.add('hidden'), 3000);
-    }
-
-    player.addEventListener('mousemove', showControls);
-    player.addEventListener('click', showControls);
-    video.addEventListener('play', showControls);
-
-    loadHLS(m3u8Url);
-  </script>
+                    document.getElementById('log').innerText = "Estado: Reproductor activo (NASA TV)";
+                } else {
+                    document.getElementById('log').style.color = "red";
+                    document.getElementById('log').innerText = "Error: No se encontró el archivo 'playerjs.js'";
+                }
+            } catch (e) {
+                console.error("Error al inicializar:", e);
+                document.getElementById('log').innerText = "Error crítico en la configuración.";
+            }
+        });
+    </script>
 </body>
-</html>
+  </html>
+  
