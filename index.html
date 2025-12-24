@@ -1,393 +1,68 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reproductor MP4 y M3U8</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <style>
-        body {
-            margin: 0;
-            background-color: #121212;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: #fff;
-        }
-
-        .video-container {
-            position: relative;
-            width: 85%;
-            max-width: 900px;
-            overflow: hidden;
-            border-radius: 12px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7);
-        }
-
-        /* Previsualización del video en la imagen */
-        video, .video-placeholder {
-            width: 100%;
-            display: block;
-            background: #0a0a0a;
-            height: auto;
-            aspect-ratio: 16/9;
-        }
-
-        .video-placeholder {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 1.5em;
-            color: rgba(255,255,255,0.3);
-        }
-
-        .controls {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background: linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.5));
-            display: flex;
-            align-items: center;
-            padding: 12px 20px;
-            transition: all 0.3s ease-in-out;
-            opacity: 1;
-        }
-
-        .controls.hidden {
-            opacity: 0;
-            pointer-events: none;
-            transform: translateY(8px);
-        }
-
-        .controls button {
-            background: none;
-            border: none;
-            color: #fff;
-            cursor: pointer;
-            font-size: 1.25em;
-            padding: 8px 10px;
-            margin: 0 4px;
-            border-radius: 6px;
-            transition: background-color 0.2s ease, color 0.2s ease;
-        }
-
-        .controls button:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-            color: #f8f8f8;
-        }
-
-        /* Botón de play/pause resaltado (igual que en la imagen) */
-        #playPauseBtn {
-            font-size: 1.6em;
-            padding: 10px 14px;
-            margin: 0 8px;
-            background-color: rgba(255,255,255,0.15);
-        }
-
-        #playPauseBtn:hover {
-            background-color: rgba(255,255,255,0.25);
-        }
-
-        .controls input[type="range"] {
-            -webkit-appearance: none;
-            width: 100%;
-            height: 5px;
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 3px;
-            outline: none;
-            cursor: pointer;
-            transition: background-color 0.2s ease;
-        }
-
-        .controls input[type="range"]:hover {
-            background: rgba(255, 255, 255, 0.5);
-        }
-
-        .controls input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 16px;
-            height: 16px;
-            background: #fff;
-            border-radius: 50%;
-            border: 2px solid rgba(0,0,0,0.1);
-            cursor: pointer;
-            position: relative;
-            top: -5px;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .controls input[type="range"]::-webkit-slider-thumb:hover {
-            transform: scale(1.2);
-            box-shadow: 0 0 8px rgba(255,255,255,0.6);
-        }
-
-        .timecode {
-            color: #eee;
-            font-size: 0.9em;
-            margin: 0 15px;
-            width: 100px;
-            text-align: center;
-            user-select: none;
-            font-weight: 500;
-        }
-
-        .volume-controls {
-            display: flex;
-            align-items: center;
-            margin-right: 20px;
-        }
-
-        .volume-controls input[type="range"] {
-            width: 100px;
-            margin: 0 10px;
-        }
-
-        .playback-controls {
-            display: flex;
-            align-items: center;
-            margin-right: 25px;
-        }
-
-        .left-controls {
-            display: flex;
-            align-items: center;
-            flex: 1;
-        }
-
-        .right-controls {
-            display: flex;
-            align-items: center;
-            margin-left: 15px;
-        }
-
-        /* Botón de pantalla completa visible y bien dimensionado (igual que en la imagen) */
-        #fullscreenBtn {
-            font-size: 1.3em;
-            padding: 9px 12px;
-            margin-left: 5px;
-        }
-
-        /* Estilos para pantalla completa */
-        .video-container:-webkit-full-screen {
-            width: 100%;
-            height: 100%;
-            border-radius: 0;
-        }
-
-        .video-container:fullscreen {
-            width: 100%;
-            height: 100%;
-            border-radius: 0;
-        }
-
-        /* Icono de pantalla completa actualizado */
-        .fullscreen-icon {
-            display: inline-block;
-            transform: scale(1.1);
-        }
-    </style>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Reproductor M3U8 (HLS)</title>
+  <style>
+    body {
+      margin: 0;
+      background: #0f0f10;
+      color: #fff;
+      display: grid;
+      place-items: center;
+      height: 100vh;
+      font-family: system-ui;
+    }
+    .player {
+      width: min(90vw, 800px);
+    }
+    video {
+      width: 100%;
+      height: auto;
+      background: #000;
+      border-radius: 12px;
+    }
+    h1 {
+      text-align: center;
+      font-size: 1.5rem;
+      margin-bottom: 16px;
+    }
+  </style>
 </head>
 <body>
-    <div class="video-container" id="videoContainer">
-        <!-- Placeholder visual para que se vea igual a la imagen antes de cargar el video -->
-        <div class="video-placeholder" id="videoPlaceholder">
-            Video en reproducción
-        </div>
-        <video id="video" preload="metadata" crossorigin="anonymous" style="display: none;">
-            <source src="REEMPLAZAR_VIDEO_MP4.mp4" type="video/mp4">
-            <source src="REEMPLAZAR_VIDEO_M3U8.m3u8" type="application/x-mpegURL">
-            Tu navegador no soporta el video.
-        </video>
+  <div class="player">
+    <h1>Reproductor M3U8 (HLS)</h1>
+    <video id="video" controls playsinline></video>
+  </div>
 
-        <div class="controls" id="controls">
-            <div class="left-controls">
-                <div class="playback-controls">
-                    <button id="rewind15Btn" title="Retroceder 15s">
-                        <i class="fas fa-backward"></i> 15
-                    </button>
-                    <button id="playPauseBtn" title="Reproducir/Pausar">
-                        <i class="fas fa-play"></i>
-                    </button>
-                    <button id="forward15Btn" title="Adelantar 15s">
-                        15 <i class="fas fa-forward"></i>
-                    </button>
-                </div>
+  <!-- hls.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <script>
+    const video = document.getElementById('video');
+    const m3u8Url = "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8"; // Cambia este enlace por el tuyo
 
-                <div class="volume-controls">
-                    <button id="volumeBtn" title="Volumen">
-                        <i id="volumeIcon" class="fas fa-volume-up"></i>
-                    </button>
-                    <input type="range" id="volume" min="0" max="1" value="1" step="0.01">
-                </div>
+    function loadHLS(url) {
+      if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.src = url;
+        video.play();
+        return;
+      }
 
-                <div class="timecode" id="timecode">0:00 / 0:00</div>
-            </div>
-
-            <input type="range" id="progress" min="0" max="100" value="0" step="0.1">
-
-            <div class="right-controls">
-                <button id="fullscreenBtn" title="Pantalla completa">
-                    <i class="fas fa-expand-arrows-alt fullscreen-icon"></i>
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        const video = document.getElementById('video');
-        const videoPlaceholder = document.getElementById('videoPlaceholder');
-        const videoContainer = document.getElementById('videoContainer');
-        const controls = document.getElementById('controls');
-        const playPauseBtn = document.getElementById('playPauseBtn');
-        const rewind15Btn = document.getElementById('rewind15Btn');
-        const forward15Btn = document.getElementById('forward15Btn');
-        const volumeBtn = document.getElementById('volumeBtn');
-        const volumeIcon = document.getElementById('volumeIcon');
-        const volume = document.getElementById('volume');
-        const progress = document.getElementById('progress');
-        const timecode = document.getElementById('timecode');
-        const fullscreenBtn = document.getElementById('fullscreenBtn');
-
-        let isPlaying = false;
-        let isMuted = false;
-        let timeout;
-
-        // Formatear tiempo en MM:SS
-        function formatTime(seconds) {
-            if (isNaN(seconds)) return '0:00';
-            const m = Math.floor(seconds / 60);
-            const s = Math.floor(seconds % 60);
-            return `${m}:${(s < 10 ? '0' : '') + s}`;
-        }
-
-        // Reproducir/Pausar (con cambio de placeholder a video)
-        function togglePlay() {
-            if (isPlaying) {
-                video.pause();
-                playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
-            } else {
-                videoPlaceholder.style.display = 'none';
-                video.style.display = 'block';
-                video.play();
-                playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
-            }
-            isPlaying = !isPlaying;
-        }
-
-        // Avanzar/Retroceder 15 segundos
-        function skipSeconds(seconds) {
-            if (isNaN(video.duration)) return;
-            video.currentTime = Math.max(0, Math.min(video.duration, video.currentTime + seconds));
-        }
-
-        // Alternar silencio
-        function toggleMute() {
-            video.muted = !isMuted;
-            isMuted = !isMuted;
-
-            if (isMuted) {
-                volumeIcon.className = 'fas fa-volume-mute';
-            } else if (video.volume > 0.5) {
-                volumeIcon.className = 'fas fa-volume-up';
-            } else {
-                volumeIcon.className = 'fas fa-volume-down';
-            }
-        }
-
-        // Actualizar volumen y icono
-        function updateVolume() {
-            video.volume = volume.value;
-            if (!isMuted) {
-                volumeIcon.className = video.volume > 0.5 ? 'fas fa-volume-up' : 'fas fa-volume-down';
-            }
-        }
-
-        // Actualizar barra de progreso y tiempo
-        function handleProgress() {
-            const duration = video.duration;
-            const currentTime = video.currentTime;
-            if (!isNaN(duration)) {
-                progress.value = (currentTime / duration) * 100;
-                timecode.textContent = `${formatTime(currentTime)} / ${formatTime(duration)}`;
-            }
-        }
-
-        // Establecer posición del video
-        function setProgress() {
-            if (isNaN(video.duration)) return;
-            video.currentTime = (progress.value * video.duration) / 100;
-        }
-
-        // Alternar pantalla completa (y actualizar icono)
-        function toggleFullscreen() {
-            if (!document.fullscreenElement) {
-                videoContainer.requestFullscreen().catch(err => {
-                    alert(`Error al activar pantalla completa: ${err.message}`);
-                });
-                fullscreenBtn.innerHTML = '<i class="fas fa-compress-arrows-alt fullscreen-icon"></i>';
-            } else {
-                document.exitFullscreen();
-                fullscreenBtn.innerHTML = '<i class="fas fa-expand-arrows-alt fullscreen-icon"></i>';
-            }
-        }
-
-        // Ocultar/Mostrar controles
-        function hideControls() {
-            if (isPlaying) controls.classList.add('hidden');
-        }
-
-        function showControls() {
-            controls.classList.remove('hidden');
-        }
-
-        function resetTimeout() {
-            clearTimeout(timeout);
-            showControls();
-            timeout = setTimeout(hideControls, 3500);
-        }
-
-        // Eventos
-        video.addEventListener('loadedmetadata', () => {
-            timecode.textContent = `0:00 / ${formatTime(video.duration)}`;
+      if (Hls.isSupported()) {
+        const hls = new Hls();
+        hls.loadSource(url);
+        hls.attachMedia(video);
+        hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
+        hls.on(Hls.Events.ERROR, (event, data) => {
+          console.warn("HLS error:", data?.details || data);
         });
+      } else {
+        alert("Tu navegador no soporta HLS ni hls.js.");
+      }
+    }
 
-        video.addEventListener('timeupdate', handleProgress);
-        video.addEventListener('play', () => {
-            isPlaying = true;
-            playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
-        });
-
-        video.addEventListener('pause', () => {
-            isPlaying = false;
-            playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
-        });
-
-        // Actualizar icono de pantalla completa al salir
-        document.addEventListener('fullscreenchange', () => {
-            if (!document.fullscreenElement) {
-                fullscreenBtn.innerHTML = '<i class="fas fa-expand-arrows-alt fullscreen-icon"></i>';
-            }
-        });
-
-        progress.addEventListener('input', setProgress);
-        playPauseBtn.addEventListener('click', togglePlay);
-        rewind15Btn.addEventListener('click', () => skipSeconds(-15));
-        forward15Btn.addEventListener('click', () => skipSeconds(15));
-        fullscreenBtn.addEventListener('click', toggleFullscreen);
-        volumeBtn.addEventListener('click', toggleMute);
-        volume.addEventListener('input', updateVolume);
-
-        videoContainer.addEventListener('mousemove', resetTimeout);
-        videoContainer.addEventListener('click', resetTimeout);
-
-        // Ocultar controles inicialmente (solo si está reproduciendo)
-        timeout = setTimeout(() => {
-            if (isPlaying) hideControls();
-        }, 3500);
-    </script>
+    loadHLS(m3u8Url);
+  </script>
 </body>
-    </html>
-    
+</html>
