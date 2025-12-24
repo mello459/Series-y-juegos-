@@ -2,25 +2,49 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Reproductor PlayerJS</title>
-    <script src="playerjs.js"></script>
+    <title>Reproductor m3u8 funcionando</title>
+
+    <!-- hls.js desde CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+
+    <style>
+        body {
+            margin: 0;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        video {
+            width: 100%;
+            max-width: 720px;
+            background: black;
+        }
+    </style>
 </head>
 <body>
 
-    <div id="reproductor_v1" style="width:640px; height:360px;"></div>
+<video id="video" controls></video>
 
-    <script>
-        var pjs = new Playerjs({
-            id: "reproductor_v1",
-            file: "https://vod-limit-stream.dramasfree.com/403a39f0dce171f0b1a087c7371d0102/28d0e919cd77498884d97fafecfc44f2-microframe-sd.m3u8?hdnts=exp=1766603729_acl=/403a39f0dce171f0b1a087c7371d0102/*_hmac=c9bfde83adae0d7b794636cbbfdcc9388f5b570bd5b28da3e742aa391bce1cce",
-            type: "hls",
-            autoplay: false,
-            options: {
-                show_quality: true,
-                show_speed: true
-            }
-        });
-    </script>
+<script>
+    const video = document.getElementById("video");
+
+    // URL m3u8 (3MU8) DE PRUEBA FUNCIONAL
+    const m3u8Url = "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8";
+
+    if (Hls.isSupported()) {
+        const hls = new Hls();
+        hls.loadSource(m3u8Url);
+        hls.attachMedia(video);
+    } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
+        // Safari / iOS
+        video.src = m3u8Url;
+    } else {
+        document.body.innerHTML = "<p style='color:white'>Tu navegador no soporta HLS</p>";
+    }
+</script>
 
 </body>
 </html>
