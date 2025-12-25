@@ -2,158 +2,234 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>TV Online</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Juegos y Series TV</title>
 
 <style>
-/* ===== VARIABLES DE COLOR (LOGO) ===== */
-:root {
-  --bg-main: #0b0b0b;
-  --bg-panel: rgba(15,15,15,0.92);
-  --accent: #ff8c1a;
-  --accent-hover: #ff5e00;
-  --text-main: #ffffff;
-  --text-soft: #cccccc;
+:root{
+  --bg:#0b0b0b;
+  --panel:#141414;
+  --gold:#ffb300;
+  --orange:#ff6a00;
+  --text:#ffffff;
 }
 
-/* ===== RESET ===== */
-* {
-  box-sizing: border-box;
-}
-html, body {
-  margin: 0;
-  padding: 0;
-  background: var(--bg-main);
-  color: var(--text-main);
-  font-family: Arial, Helvetica, sans-serif;
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  background:linear-gradient(180deg,#0b0b0b,#1a0f05);
+  color:var(--text);
+  font-family:Arial,Helvetica,sans-serif;
 }
 
-/* ===== HEADER ===== */
-header {
-  height: 60px;
-  background: #000;
-  display: flex;
-  align-items: center;
-  padding: 0 16px;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
+/* HEADER */
+.header{
+  display:flex;
+  align-items:center;
+  padding:12px 16px;
+  background:#000;
+  border-bottom:2px solid var(--gold);
 }
-header img {
-  height: 36px;
+.header img{
+  height:50px;
+  margin-right:12px;
 }
-header span {
-  margin-left: 12px;
-  font-size: 18px;
-  font-weight: bold;
-  color: var(--accent);
-}
-
-/* ===== CONTENIDO ===== */
-main {
-  padding: 10px;
+.header h1{
+  font-size:18px;
+  color:var(--gold);
+  margin:0;
 }
 
-/* ===== PANEL LATERAL ===== */
-.sidebar-handle {
-  position: fixed;
-  top: 50%;
-  right: 0;
-  transform: translateY(-50%);
-  width: 12px;
-  height: 80px;
-  background: var(--accent);
-  border-radius: 8px 0 0 8px;
-  cursor: pointer;
-  z-index: 1000;
+/* PANEL */
+.panel{
+  position:fixed;
+  left:10px;
+  top:120px;
+  background:rgba(20,20,20,.95);
+  border-radius:14px;
+  padding:8px;
+  width:56px;
+  transition:.3s ease;
+  z-index:1000;
+}
+.panel:hover{width:190px}
+
+.panel a{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:10px;
+  color:white;
+  text-decoration:none;
+  border-radius:10px;
+  font-size:14px;
+  white-space:nowrap;
+}
+.panel a:hover{
+  background:linear-gradient(90deg,var(--orange),var(--gold));
+  color:black;
 }
 
-.sidebar {
-  position: fixed;
-  top: 0;
-  right: -240px;
-  width: 240px;
-  height: 100%;
-  background: var(--bg-panel);
-  box-shadow: -4px 0 20px rgba(0,0,0,0.6);
-  transition: right 0.3s ease;
-  z-index: 999;
-  padding-top: 70px;
+/* CONTENT */
+.content{
+  margin-left:90px;
+  padding:16px;
 }
 
-.sidebar.open {
-  right: 0;
+/* PLAYER */
+.player-box{
+  position:relative;
+  width:100%;
+  background:#000;
+  border-radius:14px;
+  overflow:hidden;
+  box-shadow:0 0 25px rgba(255,165,0,.25);
+}
+.player-box::before{
+  content:"";
+  display:block;
+  padding-top:56.25%;
+}
+#player{
+  position:absolute;
+  inset:0;
 }
 
-.sidebar h3 {
-  padding: 10px 20px;
-  font-size: 14px;
-  color: var(--text-soft);
-  text-transform: uppercase;
+/* SECTIONS */
+.section{
+  margin-top:28px;
+}
+.section h2{
+  color:var(--gold);
+  margin-bottom:12px;
 }
 
-.sidebar a {
-  display: block;
-  padding: 14px 20px;
-  color: var(--text-main);
-  text-decoration: none;
-  font-size: 15px;
-  border-left: 3px solid transparent;
+/* CARDS */
+.cards{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
+  gap:14px;
 }
-
-.sidebar a:hover {
-  background: rgba(255,255,255,0.05);
-  border-left: 3px solid var(--accent);
-  color: var(--accent);
+.card{
+  background:#1a1a1a;
+  border-radius:12px;
+  overflow:hidden;
+  cursor:pointer;
+  transition:.2s;
 }
-
-/* ===== RESPONSIVE ===== */
-@media (max-width: 768px) {
-  header span {
-    font-size: 16px;
-  }
+.card:hover{
+  transform:scale(1.04);
+}
+.card img{
+  width:100%;
+  height:200px;
+  object-fit:cover;
+}
+.card span{
+  display:block;
+  padding:8px;
+  font-size:14px;
+  text-align:center;
 }
 </style>
 </head>
 
 <body>
 
-<header>
-  <!-- TU LOGO -->
-  <img src="logo.png" alt="Logo">
-  <span>TV Online</span>
-</header>
-
-<main>
-
-  <!-- ===================================== -->
-  <!-- AQUÍ VA TU REPRODUCTOR (NO TOCAR) -->
-  <!-- ===================================== -->
-  <div id="player">
-    <!-- TU REPRODUCTOR ACTUAL -->
-  </div>
-
-</main>
-
-<!-- PANEL LATERAL -->
-<div class="sidebar" id="sidebar">
-  <h3>Contenido</h3>
-  <a href="#">📺 Canales en vivo</a>
-  <a href="#">🎬 Películas</a>
-  <a href="#">📺 Series</a>
-  <a href="#">📖 Novelas</a>
-
-  <h3>Más</h3>
-  <a href="#">📚 Documentales</a>
-  <a href="#">👶 Infantil</a>
-  <a href="#">⭐ Destacado</a>
+<!-- HEADER -->
+<div class="header">
+  <img src="1766615291088.jpg" alt="Logo">
+  <h1>Juegos y Series TV</h1>
 </div>
 
-<div class="sidebar-handle" onclick="toggleSidebar()"></div>
+<!-- PANEL -->
+<div class="panel">
+  <a href="#vivo">📺 Canales en vivo</a>
+  <a href="#peliculas">🎬 Películas</a>
+  <a href="#series">📺 Series</a>
+  <a href="#novelas">📖 Novelas</a>
+  <a href="#docs">🎞️ Documentales</a>
+</div>
 
+<!-- CONTENT -->
+<div class="content">
+
+  <!-- PLAYER -->
+  <div class="player-box">
+    <div id="player"></div>
+  </div>
+
+  <!-- CANALES -->
+  <div class="section" id="vivo">
+    <h2>Canales en vivo</h2>
+    <div class="cards">
+      <div class="card">
+        <img src="https://via.placeholder.com/300x450">
+        <span>Canal en vivo</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- PELÍCULAS -->
+  <div class="section" id="peliculas">
+    <h2>Películas</h2>
+    <div class="cards">
+      <div class="card">
+        <img src="https://via.placeholder.com/300x450">
+        <span>Mi villano favorito 4</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SERIES -->
+  <div class="section" id="series">
+    <h2>Series</h2>
+    <div class="cards">
+      <div class="card">
+        <img src="https://via.placeholder.com/300x450">
+        <span>Serie próximamente</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- NOVELAS -->
+  <div class="section" id="novelas">
+    <h2>Novelas</h2>
+    <div class="cards">
+      <div class="card">
+        <img src="https://via.placeholder.com/300x450">
+        <span>Novela próximamente</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- DOCUMENTALES -->
+  <div class="section" id="docs">
+    <h2>Documentales</h2>
+    <div class="cards">
+      <div class="card">
+        <img src="https://via.placeholder.com/300x450">
+        <span>Documental próximamente</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- REPRODUCTOR (FUNCIONAL) -->
+<script src="playerjs.js"></script>
 <script>
-function toggleSidebar() {
-  document.getElementById('sidebar').classList.toggle('open');
-}
+var player = new Playerjs({
+  id:"player",
+  file:"https://data-limit-c.solo-latino.com/d0e14872c74371ef986387c7371d0102/8b6eb10297acc7fbd92dbe8ba6b3760a-sd.m3u8",
+  controls:1,
+  autoplay:0,
+  mute:0,
+  aspectratio:"16:9",
+  stretching:"uniform"
+});
 </script>
 
 </body>
-    </html>
+</html>
