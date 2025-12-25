@@ -1,73 +1,53 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<title>Reproductor Universal</title>
+    <meta charset="UTF-8">
+    <title>Reproductor Profesional - Preview</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        /* Ocupa el 100% de la ventana sin márgenes */
+        html, body {
+            margin: 0;
+            padding: 0;
+            background: #000;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-
-<style>
-html, body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
-    background: #000;
-}
-
-/* Contenedor RESPONSIVE REAL */
-.player-wrapper {
-    position: relative;
-    width: 100%;
-    max-width: 100%;
-    background: #000;
-}
-
-/* Relación 16:9 real */
-.player-wrapper::before {
-    content: "";
-    display: block;
-    padding-top: 56.25%; /* 16:9 */
-}
-
-#player {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-}
-</style>
+        #player {
+            width: 100%;
+            height: 100vh;
+            background: #000;
+        }
+    </style>
 </head>
 <body>
 
-<div class="player-wrapper">
-    <div id="player"></div>
-</div>
+<div id="player"></div>
 
 <script src="playerjs.js"></script>
 
 <script>
-var player = new Playerjs({
-    id: "player",
-
-    file: "https://vod-limit-media.123flmsfree.com/403a39f0dce171f0b1a087c7371d0102/28d0e919cd77498884d97fafecfc44f2-microframe-sd.m3u8?hdnts=exp=1766661340_acl=/403a39f0dce171f0b1a087c7371d0102/*_hmac=7fbfd2c5eca935523458561023f4a98826ae2d626a821cfd130b5c78f98d2d31",
-
-    controls: 1,
-    autoplay: 0,
-    mute: 0,
-    preload: "auto",
-
-    /* MUY IMPORTANTE */
-    aspectratio: "16:9",
-    stretching: "exactfit",
-
-    /* Evita fullscreen forzado en móvil */
-    mobileFullscreen: false,
-
-    skin: "classic",
-    volume: 80
-});
+    var player = new Playerjs({
+        id: "player",
+        
+        // Parámetros vacíos para no buscar video aún
+        file: "", 
+        preload: "none",
+        autoplay: 0,
+        
+        // Elementos visuales para ver el diseño
+        title: "Interfaz en modo de prueba",
+        poster: "https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=1920&auto=format&fit=crop", 
+        
+        // Configuración de controles
+        controls: 1,
+        skin: "classic",
+        aspectratio: "16:9",
+        stretching: "uniform",
+        volume: 80
+    });
 </script>
 
 </body>
