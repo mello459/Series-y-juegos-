@@ -12,6 +12,7 @@
   --gold:#ffb300;
   --orange:#ff6a00;
   --text:#ffffff;
+  --error:#ff3b3b;
 }
 
 *{box-sizing:border-box}
@@ -20,41 +21,40 @@ body{
   margin:0;
   background:linear-gradient(180deg,#0b0b0b,#1a0f05);
   color:var(--text);
-  font-family:Arial,Helvetica,sans-serif;
+  font-family:Arial, Helvetica, sans-serif;
 }
 
 /* HEADER */
 .header{
   display:flex;
   align-items:center;
+  gap:12px;
   padding:12px 16px;
   background:#000;
   border-bottom:2px solid var(--gold);
 }
 .header img{
-  height:50px;
-  margin-right:12px;
+  height:48px;
 }
 .header h1{
+  margin:0;
   font-size:18px;
   color:var(--gold);
-  margin:0;
 }
 
 /* PANEL */
 .panel{
   position:fixed;
   left:10px;
-  top:120px;
+  top:110px;
+  width:56px;
   background:rgba(20,20,20,.95);
   border-radius:14px;
   padding:8px;
-  width:56px;
   transition:.3s ease;
   z-index:1000;
 }
 .panel:hover{width:190px}
-
 .panel a{
   display:flex;
   align-items:center;
@@ -71,7 +71,7 @@ body{
   color:black;
 }
 
-/* CONTENT */
+/* CONTENIDO */
 .content{
   margin-left:90px;
   padding:16px;
@@ -96,16 +96,36 @@ body{
   inset:0;
 }
 
-/* SECTIONS */
+/* ERROR OVERLAY */
+#errorBox{
+  position:absolute;
+  inset:0;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  background:rgba(0,0,0,.85);
+  color:white;
+  text-align:center;
+  padding:20px;
+  z-index:10;
+}
+#errorBox span{
+  display:block;
+  margin-top:8px;
+  color:var(--error);
+  font-size:14px;
+}
+
+/* SECCIONES */
 .section{
-  margin-top:28px;
+  margin-top:30px;
 }
 .section h2{
   color:var(--gold);
   margin-bottom:12px;
 }
 
-/* CARDS */
+/* TARJETAS */
 .cards{
   display:grid;
   grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
@@ -115,11 +135,6 @@ body{
   background:#1a1a1a;
   border-radius:12px;
   overflow:hidden;
-  cursor:pointer;
-  transition:.2s;
-}
-.card:hover{
-  transform:scale(1.04);
 }
 .card img{
   width:100%;
@@ -129,21 +144,19 @@ body{
 .card span{
   display:block;
   padding:8px;
-  font-size:14px;
   text-align:center;
+  font-size:14px;
 }
 </style>
 </head>
 
 <body>
 
-<!-- HEADER -->
 <div class="header">
   <img src="1766615291088.jpg" alt="Logo">
   <h1>Juegos y Series TV</h1>
 </div>
 
-<!-- PANEL -->
 <div class="panel">
   <a href="#vivo">📺 Canales en vivo</a>
   <a href="#peliculas">🎬 Películas</a>
@@ -152,21 +165,15 @@ body{
   <a href="#docs">🎞️ Documentales</a>
 </div>
 
-<!-- CONTENT -->
 <div class="content">
 
   <!-- PLAYER -->
   <div class="player-box">
     <div id="player"></div>
-  </div>
-
-  <!-- CANALES -->
-  <div class="section" id="vivo">
-    <h2>Canales en vivo</h2>
-    <div class="cards">
-      <div class="card">
-        <img src="https://via.placeholder.com/300x450">
-        <span>Canal en vivo</span>
+    <div id="errorBox">
+      <div>
+        ⚠️ Error de reproducción
+        <span id="errorMsg"></span>
       </div>
     </div>
   </div>
@@ -182,53 +189,56 @@ body{
     </div>
   </div>
 
-  <!-- SERIES -->
-  <div class="section" id="series">
-    <h2>Series</h2>
-    <div class="cards">
-      <div class="card">
-        <img src="https://via.placeholder.com/300x450">
-        <span>Serie próximamente</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- NOVELAS -->
-  <div class="section" id="novelas">
-    <h2>Novelas</h2>
-    <div class="cards">
-      <div class="card">
-        <img src="https://via.placeholder.com/300x450">
-        <span>Novela próximamente</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- DOCUMENTALES -->
-  <div class="section" id="docs">
-    <h2>Documentales</h2>
-    <div class="cards">
-      <div class="card">
-        <img src="https://via.placeholder.com/300x450">
-        <span>Documental próximamente</span>
-      </div>
-    </div>
-  </div>
-
 </div>
 
-<!-- REPRODUCTOR (FUNCIONAL) -->
+<!-- PLAYERJS -->
 <script src="playerjs.js"></script>
 <script>
+var errorBox = document.getElementById("errorBox");
+var errorMsg = document.getElementById("errorMsg");
+
+function showError(code, msg){
+  errorBox.style.display = "flex";
+  errorMsg.textContent = "Código " + code + " – " + msg;
+  console.error("PLAYER ERROR", code, msg);
+}
+
 var player = new Playerjs({
-  id:"player",
-  file:"https://data-limit-c.solo-latino.com/d0e14872c74371ef986387c7371d0102/8b6eb10297acc7fbd92dbe8ba6b3760a-sd.m3u8",
-  controls:1,
-  autoplay:0,
-  mute:0,
-  aspectratio:"16:9",
-  stretching:"uniform"
+  id: "player",
+  file: "https://data-limit-c.solo-latino.com/d0e14872c74371ef986387c7371d0102/8b6eb10297acc7fbd92dbe8ba6b3760a-sd.m3u8",
+  autoplay: 0,
+  controls: 1,
+  aspectratio: "16:9",
+  stretching: "uniform"
 });
+
+/* EVENTOS DE ERROR */
+player.on("error", function(e){
+  showError(1004, "Error interno del reproductor");
+});
+
+player.on("ready", function(){
+  console.log("Player listo");
+});
+
+/* ERROR HTML5 */
+setTimeout(function(){
+  var video = document.querySelector("video");
+  if(video){
+    video.onerror = function(){
+      switch(video.error.code){
+        case 2:
+          showError(1001, "Error de red o conexión");
+          break;
+        case 4:
+          showError(1003, "Formato no compatible");
+          break;
+        default:
+          showError(1002, "Contenido no disponible");
+      }
+    };
+  }
+}, 1000);
 </script>
 
 </body>
