@@ -2,76 +2,158 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Reproductor estable</title>
-
+<title>TV Online</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
+/* ===== VARIABLES DE COLOR (LOGO) ===== */
+:root {
+  --bg-main: #0b0b0b;
+  --bg-panel: rgba(15,15,15,0.92);
+  --accent: #ff8c1a;
+  --accent-hover: #ff5e00;
+  --text-main: #ffffff;
+  --text-soft: #cccccc;
+}
+
 /* ===== RESET ===== */
+* {
+  box-sizing: border-box;
+}
 html, body {
-    margin: 0;
-    padding: 0;
-    background: #000;
-    width: 100%;
+  margin: 0;
+  padding: 0;
+  background: var(--bg-main);
+  color: var(--text-main);
+  font-family: Arial, Helvetica, sans-serif;
 }
 
-/* ===== PÁGINA ===== */
-.page {
-    width: 100%;
+/* ===== HEADER ===== */
+header {
+  height: 60px;
+  background: #000;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+header img {
+  height: 36px;
+}
+header span {
+  margin-left: 12px;
+  font-size: 18px;
+  font-weight: bold;
+  color: var(--accent);
 }
 
-/* ===== CONTENEDOR DEL VIDEO (NO SE EXPANDE SOLO) ===== */
-.video-lock {
-    position: relative;
-    width: 100%;
-    max-width: 1280px;   /* límite en PC / TV */
-    margin: 0 auto;      /* centra horizontal */
-    background: #000;
+/* ===== CONTENIDO ===== */
+main {
+  padding: 10px;
 }
 
-/* Mantiene proporción 16:9 SIN CORTAR */
-.video-lock::before {
-    content: "";
-    display: block;
-    padding-top: 56.25%;
+/* ===== PANEL LATERAL ===== */
+.sidebar-handle {
+  position: fixed;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  width: 12px;
+  height: 80px;
+  background: var(--accent);
+  border-radius: 8px 0 0 8px;
+  cursor: pointer;
+  z-index: 1000;
 }
 
-/* El reproductor se ajusta al marco */
-#player {
-    position: absolute;
-    inset: 0;
+.sidebar {
+  position: fixed;
+  top: 0;
+  right: -240px;
+  width: 240px;
+  height: 100%;
+  background: var(--bg-panel);
+  box-shadow: -4px 0 20px rgba(0,0,0,0.6);
+  transition: right 0.3s ease;
+  z-index: 999;
+  padding-top: 70px;
+}
+
+.sidebar.open {
+  right: 0;
+}
+
+.sidebar h3 {
+  padding: 10px 20px;
+  font-size: 14px;
+  color: var(--text-soft);
+  text-transform: uppercase;
+}
+
+.sidebar a {
+  display: block;
+  padding: 14px 20px;
+  color: var(--text-main);
+  text-decoration: none;
+  font-size: 15px;
+  border-left: 3px solid transparent;
+}
+
+.sidebar a:hover {
+  background: rgba(255,255,255,0.05);
+  border-left: 3px solid var(--accent);
+  color: var(--accent);
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  header span {
+    font-size: 16px;
+  }
 }
 </style>
 </head>
 
 <body>
 
-<div class="page">
-    <div class="video-lock">
-        <div id="player"></div>
-    </div>
+<header>
+  <!-- TU LOGO -->
+  <img src="logo.png" alt="Logo">
+  <span>TV Online</span>
+</header>
+
+<main>
+
+  <!-- ===================================== -->
+  <!-- AQUÍ VA TU REPRODUCTOR (NO TOCAR) -->
+  <!-- ===================================== -->
+  <div id="player">
+    <!-- TU REPRODUCTOR ACTUAL -->
+  </div>
+
+</main>
+
+<!-- PANEL LATERAL -->
+<div class="sidebar" id="sidebar">
+  <h3>Contenido</h3>
+  <a href="#">📺 Canales en vivo</a>
+  <a href="#">🎬 Películas</a>
+  <a href="#">📺 Series</a>
+  <a href="#">📖 Novelas</a>
+
+  <h3>Más</h3>
+  <a href="#">📚 Documentales</a>
+  <a href="#">👶 Infantil</a>
+  <a href="#">⭐ Destacado</a>
 </div>
 
-<!-- PlayerJS -->
-<script src="playerjs.js"></script>
+<div class="sidebar-handle" onclick="toggleSidebar()"></div>
 
 <script>
-var player = new Playerjs({
-    id: "player",
-    file: "https://vod-limit-media.123flmsfree.com/403a39f0dce171f0b1a087c7371d0102/28d0e919cd77498884d97fafecfc44f2-microframe-sd.m3u8?hdnts=exp=1766661340_acl=/403a39f0dce171f0b1a087c7371d0102/*_hmac=7fbfd2c5eca935523458561023f4a98826ae2d626a821cfd130b5c78f98d2d31",
-
-    controls: 1,
-    autoplay: 0,
-    mute: 0,
-    preload: "auto",
-
-    aspectratio: "16:9",
-    stretching: "uniform",
-
-    skin: "classic",
-    volume: 80
-});
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+}
 </script>
 
 </body>
-</html>
+    </html>
