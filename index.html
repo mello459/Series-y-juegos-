@@ -2,65 +2,54 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Página con reproductor estable</title>
+<title>Reproductor Estable</title>
 
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
 <style>
-/* ===== RESET BÁSICO ===== */
 html, body {
     margin: 0;
     padding: 0;
     background: #000;
-    height: 100svh;          /* viewport estable en móvil */
-    overflow: hidden;        /* evita saltos al rotar */
 }
 
-/* ===== CONTENEDOR GENERAL DE LA PÁGINA ===== */
-.page {
-    height: 100svh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-/* ===== BLOQUEA EL TAMAÑO DEL VIDEO ===== */
-.video-lock {
+/* Contenedor 16:9 estable */
+.player-wrapper {
     position: relative;
     width: 100%;
-    max-width: 1280px;       /* límite en PC */
     background: #000;
 }
-
-/* Mantiene 16:9 y evita crecimiento automático */
-.video-lock::before {
+.player-wrapper::before {
     content: "";
     display: block;
-    padding-top: 56.25%;     /* 16:9 */
+    padding-top: 56.25%;
 }
-
-/* El reproductor se ajusta al contenedor, no al viewport */
-.video-lock > #player {
+#player {
     position: absolute;
     inset: 0;
+}
+
+/* 🔥 ELIMINA COMPLETAMENTE EL FULLSCREEN INTERNO */
+.pjs-fullscreen,
+.pjs-fullscreen-btn,
+.pjs-button-fullscreen,
+.pjs-control-fullscreen {
+    display: none !important;
 }
 </style>
 </head>
 <body>
 
-<div class="page">
-    <div class="video-lock">
-        <div id="player"></div>
-    </div>
+<div class="player-wrapper">
+    <div id="player"></div>
 </div>
 
-<!-- TU PLAYERJS, SIN CAMBIOS -->
 <script src="playerjs.js"></script>
 
 <script>
 var player = new Playerjs({
     id: "player",
+
     file: "https://vod-limit-media.123flmsfree.com/403a39f0dce171f0b1a087c7371d0102/28d0e919cd77498884d97fafecfc44f2-microframe-sd.m3u8?hdnts=exp=1766661340_acl=/403a39f0dce171f0b1a087c7371d0102/*_hmac=7fbfd2c5eca935523458561023f4a98826ae2d626a821cfd130b5c78f98d2d31",
 
     controls: 1,
@@ -70,6 +59,10 @@ var player = new Playerjs({
 
     aspectratio: "16:9",
     stretching: "uniform",
+
+    /* DESACTIVADO TOTAL */
+    fullscreen: false,
+    mobileFullscreen: false,
 
     skin: "classic",
     volume: 80
