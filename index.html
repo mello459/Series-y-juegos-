@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Reproductor Estable</title>
+<title>Reproductor Universal</title>
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
@@ -10,6 +10,8 @@
 html, body {
     margin: 0;
     padding: 0;
+    width: 100%;
+    height: 100%;
     background: #000;
 }
 
@@ -17,24 +19,19 @@ html, body {
 .player-wrapper {
     position: relative;
     width: 100%;
+    max-width: 100%;
     background: #000;
 }
+
 .player-wrapper::before {
     content: "";
     display: block;
-    padding-top: 56.25%;
+    padding-top: 56.25%; /* 16:9 */
 }
+
 #player {
     position: absolute;
     inset: 0;
-}
-
-/* 🔥 ELIMINA COMPLETAMENTE EL FULLSCREEN INTERNO */
-.pjs-fullscreen,
-.pjs-fullscreen-btn,
-.pjs-button-fullscreen,
-.pjs-control-fullscreen {
-    display: none !important;
 }
 </style>
 </head>
@@ -60,9 +57,9 @@ var player = new Playerjs({
     aspectratio: "16:9",
     stretching: "uniform",
 
-    /* DESACTIVADO TOTAL */
-    fullscreen: false,
-    mobileFullscreen: false,
+    /* 🔑 CLAVE DEL ARREGLO */
+    fullscreen: false,          // desactiva fullscreen interno
+    mobileFullscreen: false,    // evita salto automático en Android
 
     skin: "classic",
     volume: 80
