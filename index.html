@@ -2,16 +2,16 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Reproductor Profesional</title>
+<title>Reproductor PlayerJS</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
 html, body {
     margin: 0;
     padding: 0;
-    background: #000;
     width: 100%;
     height: 100%;
+    background: #000;
 }
 
 #player {
@@ -31,7 +31,7 @@ html, body {
 var player = new Playerjs({
     id: "player",
 
-    file: "",               // ⬅️ SIN URL
+    file: "",          // ⬅️ SIN URL
     controls: 1,
     autoplay: 0,
     mute: 0,
@@ -40,7 +40,6 @@ var player = new Playerjs({
     skin: "classic",
     aspectratio: "16:9",
     stretching: "uniform",
-
     volume: 80
 });
 </script>
